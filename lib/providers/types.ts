@@ -1,0 +1,3 @@
+export type QuoteRequest={fromChain:number|string;toChain:number|string;fromToken:string;toToken:string;amount:string;userAddress?:string};
+export type NormalizedQuote={id:string;provider:string;receive:string;feeUsd?:number;etaSeconds?:number;steps:string[];expiresAt?:string;tx?:{to:string;data:string;value?:string};raw?:unknown};
+export interface QuoteProvider{name:string;quote(input:QuoteRequest):Promise<NormalizedQuote|null>}
