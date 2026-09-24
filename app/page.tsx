@@ -6,8 +6,9 @@ import {useRouteChangeAlert} from "@/hooks/use-route-change-alert";
 import {useQuotes} from "@/hooks/use-quotes";
 import {useQuoteCountdown} from "@/hooks/use-quote-countdown";
 import {shortAddress,useWallet} from "@/components/wallet-provider";
+import {ReviewRoute} from "@/components/review-route";
 export default function Home(){
- const [amount,setAmount]=useState("1000");const [selected,setSelected]=useState("relay");
+ const [amount,setAmount]=useState("1000");const [selected,setSelected]=useState("relay");const [review,setReview]=useState(false);const [txHash,setTxHash]=useState<string>();const [submitError,setSubmitError]=useState<string>();
  const wallet=useWallet();
  const scale=Number(amount||0)/1000;const fallback=useMemo(()=>demoRoutes.map(r=>({...r,receive:r.receive*scale,fee:r.fee*scale})),[scale]);
  const {data,loading,error,refresh}=useQuotes(amount,wallet.address);const routes=data?.routes?.length?data.routes:fallback;const current=routes.find(r=>r.id===selected)||routes[0];
@@ -15,6 +16,7 @@ export default function Home(){
  const snapshots=useMemo(()=>routes.map(r=>({id:r.id,provider:r.provider,receive:r.receive,fee:r.fee,capturedAt:Date.now()})),[routes]);
  const {change,accept,dismiss}=useRouteChangeAlert(snapshots,selected,15000);
  const acceptBetterRoute=()=>{const id=accept();if(id)setSelected(id)};
+ const submit=async()=>{if(!current.tx)return;setSubmitError(undefined);try{if(wallet.chainId!==1)await wallet.switchChain(1);const hash=await wallet.sendTransaction(current.tx);setTxHash(hash);setReview(false)}catch(e){setSubmitError(e instanceof Error?e.message:"Transaction rejected")}};
  return <main><nav><div className="brand"><i>↗</i>Crosschain <b>Router</b></div><div className="navlinks"><a href="#swap">Swap</a><a href="#routes">Routes</a></div><button className="wallet" onClick={wallet.connected?wallet.disconnect:wallet.connect}><Wallet size={16}/> {wallet.connecting?"Connecting…":wallet.connected?shortAddress(wallet.address):"Connect wallet"}</button></nav>
  <header><span className="pill"><Sparkles size={13}/> Cross-chain execution, intelligently routed</span><h1>Move anything.<br/><em>Anywhere.</em></h1><p>Compare bridges and liquidity sources. Get the best route before you sign.</p></header>
  <section className="grid" id="swap"><div className="card"><div className="title"><span><b>Swap & bridge</b><small>{loading?"Refreshing routes…":data?.mode==="live"?"Live provider quotes":"Demo routing · live adapters pending"}</small></span><em>{loading?"↻ UPDATING":"● ROUTING ACTIVE"}</em></div>
@@ -23,10 +25,10 @@ export default function Home(){
  {error&&<div className="quoteError">Could not refresh quotes. Showing the last available route.</div>}
  {change&&<div className={"routeAlert "+change.kind}><div><Sparkles size={16}/><span><b>{change.kind==="better-route"?"Better route found":change.kind==="selected-worsened"?"Route changed":"Route improved"}</b><small>{change.kind==="better-route"?change.next.provider+" now gives "+change.delta.toFixed(2)+" USDC more.":Math.abs(change.delta).toFixed(2)+" USDC change detected before signing."}</small></span></div><section>{change.kind==="better-route"&&<button onClick={acceptBetterRoute}>Switch route</button>}<button className="dismiss" onClick={dismiss}>Dismiss</button></section></div>}
  {wallet.error&&<div className="quoteError">{wallet.error}</div>}
- <button className="primary" disabled={expired||wallet.connecting} onClick={!wallet.connected?wallet.connect:undefined}>{expired?"Refresh quote to continue":wallet.connected?"Review route":<><Wallet size={17}/> Connect wallet to continue</>}</button><p className="safe"><ShieldCheck size={13}/> Non-custodial · You approve every transaction</p></div>
+ <button className="primary" disabled={expired||wallet.connecting} onClick={!wallet.connected?wallet.connect:()=>setReview(true)}>{expired?"Refresh quote to continue":wallet.connected?"Review route":<><Wallet size={17}/> Connect wallet to continue</>}</button><p className="safe"><ShieldCheck size={13}/> Non-custodial · You approve every transaction</p>{txHash&&<div className="txStatus"><b>Transaction submitted</b><span>{txHash.slice(0,12)}…{txHash.slice(-8)}</span></div>}{submitError&&<div className="quoteError">{submitError}</div>}</div>
  <aside className="card" id="routes"><div className="title"><span><b>Route Intelligence</b><small>{routes.length} routes compared</small></span><em>● UPDATED NOW</em></div><div className="tabs"><button>Best return</button><button>Fastest</button><button>Lowest gas</button></div>
  <div className="routes">{routes.map(r=><button key={r.id} className={selected===r.id?"route selected":"route"} onClick={()=>setSelected(r.id)}><div className="provider"><i>{r.provider[0]}</i><span><b>{r.provider}</b><small>{r.steps.join(" → ")}</small></span>{r.label&&<em>{r.label}</em>}</div><div className="quote"><span>YOU RECEIVE<b>{r.receive.toLocaleString(undefined,{maximumFractionDigits:2})} USDC</b></span><span>COST<b>{"$"}{r.fee.toFixed(2)}</b></span><span><Clock3 size={10}/> ETA<b>{r.eta}</b></span></div></button>)}</div>
  <div className="insight"><Sparkles size={16}/><p><b>Route insight</b><br/>{current.provider} is the selected demo route. Live quotes are the next integration milestone.</p></div></aside></section>
- <footer>Crosschain Router · Demo quotes are illustrative until live provider adapters are enabled.</footer></main>
+ <ReviewRoute open={review} onClose={()=>setReview(false)} onConfirm={submit} provider={current.provider} amount={amount} receive={current.receive} fee={current.fee} eta={current.eta} tx={current.tx} chainId={1}/><footer>Crosschain Router · Demo quotes are illustrative until live provider adapters are enabled.</footer></main>
 }
 function Asset({label,value,onChange,chain,symbol,input=false}:{label:string;value:string;onChange?:(v:string)=>void;chain:string;symbol:string;input?:boolean}){return <div className="asset"><div className="meta"><span>{label}</span><span>{input?"Balance —":"Estimated"}</span></div><div className="assetrow">{input?<input value={value} onChange={e=>onChange?.(e.target.value.replace(/[^0-9.]/g,""))}/>:<div className="amount">{value}</div>}<button className="token"><i>$</i><b>USDC</b><ChevronDown size={14}/></button></div><button className="chain"><i>{symbol}</i>{chain}<ChevronDown size={12}/></button></div>}
