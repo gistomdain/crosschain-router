@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";import {demoRoutes} from "@/lib/routes";
+export async function POST(request:Request){const body=await request.json().catch(()=>({}));const amount=Number(body.amount||1000);const scale=amount/1000;return NextResponse.json({mode:"demo",requestedAt:new Date().toISOString(),routes:demoRoutes.map(r=>({...r,receive:Number((r.receive*scale).toFixed(4)),fee:Number((r.fee*scale).toFixed(4))}))})}
