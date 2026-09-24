@@ -1,6 +1,6 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
-export type UiQuote={id:string;provider:string;receive:number;fee:number;eta:string;label?:string;steps:string[];expiresAt?:string};
+export type UiQuote={id:string;provider:string;receive:number;fee:number;eta:string;label?:string;steps:string[];expiresAt?:string;tx?:{to:string;data:string;value?:string;chainId?:number}};
 type QuoteResponse={mode:"live"|"demo";requestedAt:string;routes:UiQuote[]};
 export function useQuotes(amount:string,userAddress?:string){
  const [data,setData]=useState<QuoteResponse|null>(null);const [loading,setLoading]=useState(false);const [error,setError]=useState<string|null>(null);
