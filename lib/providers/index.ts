@@ -1,0 +1,3 @@
+import {lifiProvider} from "./lifi";import {relayProvider} from "./relay";import {acrossProvider} from "./across";import {debridgeProvider} from "./debridge";import type {QuoteRequest} from "./types";
+const providers=[lifiProvider,relayProvider,acrossProvider,debridgeProvider];
+export async function getLiveQuotes(input:QuoteRequest){const settled=await Promise.allSettled(providers.map(p=>p.quote(input)));return settled.flatMap(r=>r.status==="fulfilled"&&r.value?[r.value]:[]);}
