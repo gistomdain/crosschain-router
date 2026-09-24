@@ -1,4 +1,10 @@
 import type {NormalizedQuote,QuoteProvider,QuoteRequest} from "./types";
+import {fromBaseUnits,getToken,toBaseUnits} from "../token-addresses";
 export const acrossProvider:QuoteProvider={name:"Across",async quote(input:QuoteRequest):Promise<NormalizedQuote|null>{
- void input;return null;
+ const key=process.env.ACROSS_API_KEY,integratorId=process.env.ACROSS_INTEGRATOR_ID;if(!key||!integratorId||!input.userAddress)return null;
+ const from=getToken(input.fromChain,input.fromToken),to=getToken(input.toChain,input.toToken);if(!from||!to)return null;
+ const params=new URLSearchParams({tradeType:"exactInput",originChainId:String(input.fromChain),destinationChainId:String(input.toChain),inputToken:from.address,outputToken:to.address,amount:toBaseUnits(input.amount,from.decimals),depositor:input.userAddress,integratorId});
+ const res=await fetch("https://app.across.to/api/swap/approval?"+params,{headers:{Authorization:"Bearer "+key,accept:"application/json"},cache:"no-store"});if(!res.ok)return null;const q=await res.json();
+ const rawOut=q?.expectedOutputAmount??q?.outputAmount??q?.quote?.outputAmount;if(!rawOut||!q?.swapTx)return null;
+ return{id:"across",provider:"Across",receive:fromBaseUnits(String(rawOut),to.decimals),feeUsd:Number(q?.fees?.total?.amountUsd??q?.fees?.totalUsd??0)||undefined,etaSeconds:Number(q?.expectedFillTime||0)||undefined,steps:[String(input.fromChain),"Across",String(input.toChain)],expiresAt:new Date(Date.now()+15000).toISOString(),tx:{to:q.swapTx.to,data:q.swapTx.data,value:q.swapTx.value},raw:q};
 }};
