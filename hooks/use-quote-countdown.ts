@@ -1,0 +1,3 @@
+"use client";
+import {useEffect,useState} from "react";
+export function useQuoteCountdown(expiresAt?:string){const calc=()=>expiresAt?Math.max(0,Math.ceil((new Date(expiresAt).getTime()-Date.now())/1000)):0;const [seconds,setSeconds]=useState(calc);useEffect(()=>{setSeconds(calc());const t=setInterval(()=>setSeconds(calc()),1000);return()=>clearInterval(t)},[expiresAt]);return{seconds,expired:!!expiresAt&&seconds<=0};}
