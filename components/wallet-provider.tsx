@@ -1,6 +1,6 @@
 "use client";
 import {createContext,useCallback,useContext,useEffect,useState} from "react";
-type WalletState={address?:`0x${string}`;chainId?:number;connected:boolean;connecting:boolean;error?:string;connect:()=>Promise<void>;disconnect:()=>void;switchChain:(chainId:number)=>Promise<void>;sendTransaction:(tx:{to:string;data:string;value?:string})=>Promise<string>};
+type WalletState={address?:`0x${string}`;chainId?:number;connected:boolean;connecting:boolean;error?:string;connect:()=>Promise<void>;disconnect:()=>void;switchChain:(chainId:number)=>Promise<void>;sendTransaction:(tx:{to:string;data:string;value?:string})=>Promise<string>;call:(tx:{to:string;data:string;value?:string})=>Promise<string>;waitForReceipt:(hash:string)=>Promise<void>};
 const Context=createContext<WalletState|null>(null);
 declare global{interface Window{ethereum?:{request:(args:{method:string;params?:unknown[]})=>Promise<any>;on?:(event:string,cb:(...args:any[])=>void)=>void;removeListener?:(event:string,cb:(...args:any[])=>void)=>void}}}
 export function WalletProvider({children}:{children:React.ReactNode}){const [address,setAddress]=useState<`0x${string}`>();const [chainId,setChainId]=useState<number>();const [connecting,setConnecting]=useState(false);const [error,setError]=useState<string>();
@@ -10,6 +10,8 @@ export function WalletProvider({children}:{children:React.ReactNode}){const [add
  const disconnect=()=>setAddress(undefined);
  const switchChain=async(id:number)=>{if(!window.ethereum)throw new Error("No EVM wallet detected");await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x"+id.toString(16)}]});setChainId(id)};
  const sendTransaction=async(tx:{to:string;data:string;value?:string})=>{if(!window.ethereum||!address)throw new Error("Connect wallet first");return await window.ethereum.request({method:"eth_sendTransaction",params:[{from:address,to:tx.to,data:tx.data,value:tx.value||"0x0"}]})};
- return <Context.Provider value={{address,chainId,connected:!!address,connecting,error,connect,disconnect,switchChain,sendTransaction}}>{children}</Context.Provider>}
+ const call=async(tx:{to:string;data:string;value?:string})=>{if(!window.ethereum||!address)throw new Error("Connect wallet first");return await window.ethereum.request({method:"eth_call",params:[{from:address,to:tx.to,data:tx.data,value:tx.value||"0x0"},"latest"]})};
+ const waitForReceipt=async(hash:string)=>{if(!window.ethereum)throw new Error("No EVM wallet detected");for(let i=0;i<90;i++){const receipt=await window.ethereum.request({method:"eth_getTransactionReceipt",params:[hash]});if(receipt){if(receipt.status==="0x0")throw new Error("Transaction reverted");return}await new Promise(r=>setTimeout(r,2000))}throw new Error("Transaction confirmation timed out")};
+ return <Context.Provider value={{address,chainId,connected:!!address,connecting,error,connect,disconnect,switchChain,sendTransaction,call,waitForReceipt}}>{children}</Context.Provider>}
 export function useWallet(){const v=useContext(Context);if(!v)throw new Error("useWallet must be used inside WalletProvider");return v}
 export function shortAddress(address?:string){return address?address.slice(0,6)+"…"+address.slice(-4):""}
