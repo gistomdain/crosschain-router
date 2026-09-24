@@ -1,7 +1,7 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
 export type UiQuote={id:string;provider:string;receive:number;fee:number;eta:string;label?:string;steps:string[];expiresAt?:string;approvalTxs?:{to:string;data:string;value?:string;chainId?:number}[];tx?:{to:string;data:string;value?:string;chainId?:number}};
-type QuoteResponse={mode:"live"|"demo";requestedAt:string;routes:UiQuote[]};
+type QuoteResponse={mode:"live"|"demo"|"unavailable";routeType?:"swap"|"cross-chain";requestedAt:string;routes:UiQuote[];error?:string};
 export type QuoteSelection={fromChain:number|string;toChain:number|string;fromToken:string;toToken:string};
 export function useQuotes(amount:string,selection:QuoteSelection,userAddress?:string){
  const [data,setData]=useState<QuoteResponse|null>(null);const [loading,setLoading]=useState(false);const [error,setError]=useState<string|null>(null);
