@@ -35,5 +35,5 @@ export async function POST(request:Request){
   const max=Math.min(300,Math.max(1,Number(body.maxDeteriorationBps??30)||30));
   if(deteriorationBps>max)return NextResponse.json({error:"Route changed materially. Review the fresh quote before signing.",receive:fresh,deteriorationBps,requiresReconfirm:true},{status:409});
   return NextResponse.json({provider:quote.provider,receive:fresh,fee:quote.feeUsd??0,etaSeconds:quote.etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking:quote.tracking,deteriorationBps,requiresReconfirm:false})
- }catch{return NextResponse.json({error:"Could not safely prepare the selected route"},{status:502})}
+ }catch(e){if(e instanceof Error&&e.name==="AbortError")return NextResponse.json({error:"Route preparation timed out"},{status:504});return NextResponse.json({error:"Could not safely prepare the selected route"},{status:502})}
 }
