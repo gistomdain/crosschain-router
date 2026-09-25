@@ -23,6 +23,9 @@ export async function POST(request:Request){
    if(decoded.amount<=0n)return NextResponse.json({error:"Provider requested an invalid token approval amount"},{status:422});
    if(!ADDRESS.test(decoded.spender)||/^0x0{40}$/i.test(decoded.spender))return NextResponse.json({error:"Provider requested an invalid approval spender"},{status:422});
    if(sourceToken&&decoded.token.toLowerCase()!==sourceToken.address.toLowerCase())return NextResponse.json({error:"Provider requested approval for an unexpected token"},{status:422});
+   if(quote.approvalPolicy?.token&&decoded.token.toLowerCase()!==quote.approvalPolicy.token.toLowerCase())return NextResponse.json({error:"Approval token does not match provider allowance policy"},{status:422});
+   if(quote.approvalPolicy?.spender&&decoded.spender.toLowerCase()!==quote.approvalPolicy.spender.toLowerCase())return NextResponse.json({error:"Approval spender does not match provider allowance policy"},{status:422});
+   if(quote.approvalPolicy?.expectedAmount){try{if(decoded.amount<BigInt(quote.approvalPolicy.expectedAmount))return NextResponse.json({error:"Approval amount is below provider execution requirement"},{status:422})}catch{return NextResponse.json({error:"Provider returned malformed approval policy"},{status:422})}}
    if(expectedApproval){const maximum=expectedApproval+(expectedApproval*MAX_APPROVAL_BUFFER_BPS/10000n);if(decoded.amount>maximum)return NextResponse.json({error:"Provider requested an unnecessarily large token approval"},{status:422});}
   }
   if(quote.expiresAt&&Date.parse(quote.expiresAt)<=Date.now()+3000)return NextResponse.json({error:"Fresh route expired before signing"},{status:409});
