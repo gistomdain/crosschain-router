@@ -37,6 +37,7 @@ export async function POST(request:Request){
   const max=Math.min(300,Math.max(1,Number(body.maxDeteriorationBps??30)||30));
   if(deteriorationBps>max)return NextResponse.json({error:"Route changed materially. Review the fresh quote before signing.",receive:fresh,deteriorationBps,requiresReconfirm:true},{status:409});
   const fee=typeof quote.feeUsd==="number"&&Number.isFinite(quote.feeUsd)&&quote.feeUsd>=0?quote.feeUsd:undefined;const etaSeconds=typeof quote.etaSeconds==="number"&&Number.isFinite(quote.etaSeconds)&&quote.etaSeconds>0?quote.etaSeconds:undefined;
-  return NextResponse.json({provider:quote.provider,receive:fresh,fee,etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking:quote.tracking,deteriorationBps,requiresReconfirm:false})
+  const tracking=quote.tracking;if(tracking!==undefined){if(typeof tracking!=="object"||tracking===null)return NextResponse.json({error:"Provider returned malformed tracking metadata"},{status:502});for(const key of ["orderId","requestId","routeId"] as const){const value=tracking[key];if(value!==undefined&&(typeof value!=="string"||value.length===0||value.length>160))return NextResponse.json({error:"Provider returned malformed tracking metadata"},{status:502})}}
+  return NextResponse.json({provider:quote.provider,receive:fresh,fee,etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking,deteriorationBps,requiresReconfirm:false})
  }catch(e){if(e instanceof Error&&e.name==="AbortError")return NextResponse.json({error:"Route preparation timed out"},{status:504});return NextResponse.json({error:"Could not safely prepare the selected route"},{status:502})}
 }
