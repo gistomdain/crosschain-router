@@ -1,4 +1,4 @@
-import {NextResponse} from "next/server";import {fromSolanaBaseUnits,getSolanaMint,isSolanaAddress,parseSolanaAmount} from "@/lib/solana";
+import {NextResponse} from "next/server";import {getSolanaMint,isSolanaAddress,parseSolanaAmount,parseSolanaBaseUnits} from "@/lib/solana";
 export const dynamic="force-dynamic";
 const MAX_DETERIORATION_BPS=50;
 export async function POST(request:Request){
@@ -16,7 +16,7 @@ export async function POST(request:Request){
   const quoteController=new AbortController();const quoteTimer=setTimeout(()=>quoteController.abort(),8000);let qr:Response;try{qr=await fetch("https://api.jup.ag/swap/v1/quote?"+qp,{headers,cache:"no-store",signal:quoteController.signal})}finally{clearTimeout(quoteTimer)};
   if(!qr.ok)return NextResponse.json({error:"Fresh Jupiter quote unavailable"},{status:502});
   const quoteResponse=await qr.json();
-  const freshReceive=Number(fromSolanaBaseUnits(String(quoteResponse.outAmount),output.decimals));
+  const freshReceiveText=parseSolanaBaseUnits(quoteResponse.outAmount,output.decimals);const freshReceive=freshReceiveText===null?NaN:Number(freshReceiveText);if(!Number.isFinite(freshReceive)||freshReceive<=0)return NextResponse.json({error:"Jupiter returned an invalid destination amount"},{status:502});
   const reviewedReceive=Number(body.reviewedReceive);
   const deteriorationBps=Number.isFinite(reviewedReceive)&&reviewedReceive>0?Math.max(0,Math.round((reviewedReceive-freshReceive)/reviewedReceive*10000)):0;
   if(deteriorationBps>MAX_DETERIORATION_BPS)return NextResponse.json({error:"Route changed materially. Review the fresh quote before signing.",freshReceive,deteriorationBps,requiresReconfirm:true},{status:409});
