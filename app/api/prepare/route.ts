@@ -1,6 +1,6 @@
 import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {getToken,toBaseUnits} from "@/lib/token-addresses";
 export const dynamic="force-dynamic";
-const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;
+const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;const ADDRESS=/^0x[a-fA-F0-9]{40}$/;
 export async function POST(request:Request){
  const body=await request.json().catch(()=>({}));const amount=Number(body.amount);
  if(!Number.isFinite(amount)||amount<=0||!body.provider||!body.userAddress)return NextResponse.json({error:"Invalid preparation request"},{status:400});
@@ -20,6 +20,7 @@ export async function POST(request:Request){
    const check=validateProviderTransaction(approval,input.fromChain);const decoded=decodeApproval(approval);
    if(!check.ok||!isApprovalTransaction(approval)||!decoded.standard)return NextResponse.json({error:"Provider approval transaction failed validation",details:check.errors},{status:422});
    if(decoded.amount<=0n)return NextResponse.json({error:"Provider requested an invalid token approval amount"},{status:422});
+   if(!ADDRESS.test(decoded.spender)||/^0x0{40}$/i.test(decoded.spender))return NextResponse.json({error:"Provider requested an invalid approval spender"},{status:422});
    if(sourceToken&&decoded.token.toLowerCase()!==sourceToken.address.toLowerCase())return NextResponse.json({error:"Provider requested approval for an unexpected token"},{status:422});
    if(expectedApproval){const maximum=expectedApproval+(expectedApproval*MAX_APPROVAL_BUFFER_BPS/10000n);if(decoded.amount>maximum)return NextResponse.json({error:"Provider requested an unnecessarily large token approval"},{status:422});}
   }
