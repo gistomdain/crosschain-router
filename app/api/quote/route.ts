@@ -1,4 +1,4 @@
-import {NextResponse} from "next/server";import {demoRoutes} from "@/lib/routes";import {getLiveQuotes} from "@/lib/providers";import {getSameChainQuotes,isSameChain} from "@/lib/providers/same-chain";
+import {NextResponse} from "next/server";import {getLiveQuotes} from "@/lib/providers";import {getSameChainQuotes,isSameChain} from "@/lib/providers/same-chain";
 export const dynamic="force-dynamic";
 export async function POST(request:Request){
  const body=await request.json().catch(()=>({}));const amount=Number(body.amount||0);if(!Number.isFinite(amount)||amount<=0)return NextResponse.json({error:"Invalid amount"},{status:400});
@@ -7,7 +7,6 @@ export async function POST(request:Request){
  try{const aggregate=sameChain?{quotes:await getSameChainQuotes(input),health:[]}:await getLiveQuotes(input);const live=aggregate.quotes;
  if(live.length)return NextResponse.json({mode:"live",routeType:sameChain?"swap":"cross-chain",requestedAt:new Date().toISOString(),providerHealth:aggregate.health,routes:live.map(q=>({id:q.id,provider:q.provider,receive:Number(q.receive),fee:q.feeUsd??0,eta:q.etaSeconds?formatEta(q.etaSeconds):"—",steps:q.steps,expiresAt:q.expiresAt??expiresAt,approvalTxs:q.approvalTxs??[],tx:q.tx,tracking:q.tracking}))});
  }catch(error){console.error("Live quote aggregation failed",error)}
- if(sameChain)return NextResponse.json({mode:"unavailable",routeType:"swap",requestedAt:new Date().toISOString(),routes:[],error:"No live same-chain swap route is currently available."});
- const scale=amount/1000;return NextResponse.json({mode:"demo",routeType:"cross-chain",requestedAt:new Date().toISOString(),providerHealth:[],routes:demoRoutes.map(r=>({...r,receive:Number((r.receive*scale).toFixed(4)),fee:Number((r.fee*scale).toFixed(4)),expiresAt}))});
+ return NextResponse.json({mode:"unavailable",routeType:sameChain?"swap":"cross-chain",requestedAt:new Date().toISOString(),providerHealth:[],routes:[],error:sameChain?"No live same-chain swap route is currently available.":"No live cross-chain route is currently available. Try refreshing or choose another pair."});
 }
 function formatEta(seconds:number){return seconds<60?"~"+seconds+" sec":"~"+Math.ceil(seconds/60)+" min"}
