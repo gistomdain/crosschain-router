@@ -1,6 +1,6 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
-export type UiQuote={id:string;provider:string;receive:number|string;fee?:number;eta:string;label?:string;steps:string[];expiresAt?:string;approvalTxs?:{to:string;data:string;value?:string;chainId?:number}[];tx?:{to:string;data:string;value?:string;chainId?:number};tracking?:{orderId?:string;requestId?:string;routeId?:string};capabilities?:{destinationGas?:boolean;destinationActions?:boolean}};
+export type UiQuote={id:string;provider:string;receive:number|string;fee?:number;eta:string;label?:string;steps:string[];expiresAt?:string;approvalTxs?:{to:string;data:string;value?:string;chainId?:number}[];tx?:{to:string;data:string;value?:string;chainId?:number};tracking?:{orderId?:string;requestId?:string;routeId?:string};capabilities?:{destinationGas?:boolean;destinationActions?:boolean};routeMeta?:{direct?:boolean;source?:string}};
 export type ProviderHealth={provider:string;status:"healthy"|"slow"|"unavailable";latencyMs:number;quoted:boolean};
 type QuoteResponse={providerHealth?:ProviderHealth[];mode:"live"|"unavailable";routeType?:"swap"|"cross-chain";requestedAt:string;routes:UiQuote[];error?:string};
 export type QuoteSelection={fromChain:number|string;toChain:number|string;fromToken:string;toToken:string};
