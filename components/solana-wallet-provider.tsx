@@ -36,7 +36,7 @@ export function SolanaWalletProvider({children}:{children:React.ReactNode}){
   provider.on?.("connect",sync);provider.on?.("disconnect",clear);provider.on?.("accountChanged",account);
   return()=>{provider.off?.("connect",sync);provider.off?.("disconnect",clear);provider.off?.("accountChanged",account)}
  },[provider]);
- const connect=async()=>{setError(undefined);if(!provider){setError("No compatible Solana browser wallet detected");return}setConnecting(true);try{const r=await provider.connect();setAddress(r.publicKey.toString())}catch(e){setError(e instanceof Error?e.message:"Solana wallet connection failed")}finally{setConnecting(false)}};
+ const connect=async()=>{setError(undefined);const active=provider??(typeof window!=="undefined"?(window.phantom?.solana??window.solana):undefined);if(!active){setError("No compatible Solana browser wallet detected");return}if(!provider)setProvider(active);setConnecting(true);try{const r=await active.connect();setAddress(r.publicKey.toString())}catch(e){setError(e instanceof Error?e.message:"Solana wallet connection failed")}finally{setConnecting(false)}};
  const disconnect=async()=>{await provider?.disconnect?.();setAddress(undefined)};
  return <Context.Provider value={{address,connected:!!address,connecting,error,connect,disconnect,provider}}>{children}</Context.Provider>
 }
