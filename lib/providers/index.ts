@@ -1,4 +1,4 @@
-import {lifiProvider} from "./lifi";import {relayProvider} from "./relay";import {acrossProvider} from "./across";import {debridgeProvider} from "./debridge";import type {QuoteRequest} from "./types";
+import {lifiProvider} from "./lifi";import {relayProvider} from "./relay";import {acrossProvider} from "./across";import {debridgeProvider} from "./debridge";import type {QuoteRequest} from "./types";import {quoteWithHealth} from "./health";
 export const providers=[lifiProvider,relayProvider,acrossProvider,debridgeProvider];
 export function getProvider(id:string){return providers.find(p=>p.name.toLowerCase().replace(/[^a-z0-9]/g,"")===id.toLowerCase().replace(/[^a-z0-9]/g,""))}
-export async function getLiveQuotes(input:QuoteRequest){const settled=await Promise.allSettled(providers.map(p=>p.quote(input)));return settled.flatMap(r=>r.status==="fulfilled"&&r.value?[r.value]:[]);}
+export async function getLiveQuotes(input:QuoteRequest){const results=await Promise.all(providers.map(p=>quoteWithHealth(p,input)));return{quotes:results.flatMap(r=>r.quote?[r.quote]:[]),health:results.map(r=>r.health)}}
