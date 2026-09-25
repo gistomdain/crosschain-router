@@ -2,8 +2,8 @@
 import {useState} from "react";
 import {Check,Clock3,Copy,ExternalLink,LoaderCircle,RefreshCw,TriangleAlert} from "lucide-react";
 import {useTransferStatus} from "@/hooks/use-transfer-status";
-import {classifyTransfer} from "@/lib/execution/rescue";
-const normalized=(s?:string)=>(s||"").toLowerCase();const complete=(s?:string)=>["filled","completed","success","succeeded"].includes(normalized(s));const failed=(s?:string)=>["expired","refunded","failed","reverted","deposit-failed"].includes(normalized(s));
+import {classifyTransfer,isCompletedTransferStatus,isFailedTransferStatus} from "@/lib/execution/rescue";
+const complete=isCompletedTransferStatus;const failed=(s?:string)=>isFailedTransferStatus(s)||(s||"").toLowerCase()==="refunded"||(s||"").toLowerCase()==="refund";
 const explorers:Record<number,string>={1:"https://etherscan.io/tx/",8453:"https://basescan.org/tx/",42161:"https://arbiscan.io/tx/",10:"https://optimistic.etherscan.io/tx/",137:"https://polygonscan.com/tx/",56:"https://bscscan.com/tx/"};
 export function TransactionCenter({provider,txHash,sourceChainId,destinationChainId,tracking,submittedAt,amount,receive,fromToken,toToken,onNewRoute}:{provider?:string;txHash?:string;sourceChainId?:number;destinationChainId?:number;tracking?:{orderId?:string;requestId?:string;routeId?:string};submittedAt?:number;amount?:string;receive?:number|string;fromToken?:string;toToken?:string;onNewRoute?:()=>void}){
  const [copied,setCopied]=useState(false);const {data,error,startedAt,refresh,refreshing}=useTransferStatus(provider,txHash,sourceChainId,tracking,submittedAt);if(!provider||!txHash)return null;const status=data?.status??"submitted";
