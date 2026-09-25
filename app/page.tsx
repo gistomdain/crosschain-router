@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {ArrowDown,ChevronDown,Clock3,Route,ShieldCheck,Sparkles,Wallet} from "lucide-react";
 import {useRouteChangeAlert} from "@/hooks/use-route-change-alert";
 import {useQuotes} from "@/hooks/use-quotes";
