@@ -13,10 +13,9 @@
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "lucide-react": "^0.468.0",
-    "@solana/kit": "^7.0.0",
-    "@solana/kit-plugin-wallet": "^0.13.0",
-    "@solana/kit-plugin-rpc": "^0.13.0",
-    "@solana/react": "^0.13.0"
+    "@solana/client": "^1.4.1",
+    "@solana/react-hooks": "^1.4.1",
+    "@solana/web3-compat": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
