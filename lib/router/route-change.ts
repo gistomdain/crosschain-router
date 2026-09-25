@@ -11,10 +11,10 @@ export function detectRouteChange(previous:QuoteSnapshot[],next:QuoteSnapshot[],
  if(!oldSelected||!newSelected)return null;
  const best=[...next].sort((a,b)=>compareReceive(b.receive,a.receive))[0];
  if(best&&best.id!==selectedId){
-  const selectedReceive=receiveNumber(newSelected.receive),bestReceive=receiveNumber(best.receive);const delta=bestReceive-selectedReceive;const deltaBps=bps(delta,selectedReceive);
+  const selectedReceive=receiveNumber(newSelected.receive),bestReceive=receiveNumber(best.receive);const delta=bestReceive-selectedReceive;const deltaBps=exactBps(newSelected.receive,best.receive)??bps(delta,selectedReceive);
   if(deltaBps>=minImprovementBps)return{kind:"better-route",previous:newSelected,next:best,delta,deltaBps};
  }
  const oldReceive=receiveNumber(oldSelected.receive),newReceive=receiveNumber(newSelected.receive);const delta=newReceive-oldReceive;const exact=exactBps(oldSelected.receive,newSelected.receive);const deltaBps=exact??Math.abs(bps(delta,oldReceive));
- if(deltaBps>=minImprovementBps)return{kind:delta>0?"selected-improved":"selected-worsened",previous:oldSelected,next:newSelected,delta,deltaBps};
+ const direction=compareReceive(newSelected.receive,oldSelected.receive);if(deltaBps>=minImprovementBps&&direction!==0)return{kind:direction>0?"selected-improved":"selected-worsened",previous:oldSelected,next:newSelected,delta,deltaBps};
  return null;
 }
