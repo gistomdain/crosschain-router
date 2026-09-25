@@ -1,44 +1,25 @@
 "use client";
-import {createContext,useContext,useEffect,useState} from "react";
+import {createContext,useContext,useState} from "react";
+import {createClient} from "@solana/kit";
+import {solanaRpc} from "@solana/kit-plugin-rpc";
+import {walletSigner} from "@solana/kit-plugin-wallet";
+import {ClientProvider} from "@solana/react";
+import {useConnect,useConnectedWallet,useDisconnect,useIsWalletReady,useWallets} from "@solana/kit-plugin-wallet/react";
 
-export type SolanaProvider={
- isPhantom?:boolean;
- publicKey?:{toString:()=>string};
- isConnected?:boolean;
- connect:(options?:{onlyIfTrusted?:boolean})=>Promise<{publicKey:{toString:()=>string}}>;
- disconnect?:()=>Promise<void>;
- signAndSendTransaction:(transaction:Uint8Array,options?:{skipPreflight?:boolean;maxRetries?:number})=>Promise<{signature:string}>;
- on?:(event:"connect"|"disconnect"|"accountChanged",handler:(key?:{toString:()=>string}|null)=>void)=>void;
- off?:(event:"connect"|"disconnect"|"accountChanged",handler:(key?:{toString:()=>string}|null)=>void)=>void
-};
-type State={address?:string;connected:boolean;connecting:boolean;error?:string;connect:()=>Promise<void>;disconnect:()=>Promise<void>;provider?:SolanaProvider};
+const rpcUrl=process.env.NEXT_PUBLIC_SOLANA_RPC_URL??"https://api.mainnet-beta.solana.com";
+export const solanaClient=createClient().use(walletSigner({chain:"solana:mainnet"})).use(solanaRpc({rpcUrl}));
+export type SolanaClient=Awaited<typeof solanaClient>;
+type State={address?:string;connected:boolean;connecting:boolean;error?:string;connect:()=>Promise<void>;disconnect:()=>Promise<void>;signer?:unknown};
 const Context=createContext<State|null>(null);
-declare global{interface Window{phantom?:{solana?:SolanaProvider};solana?:SolanaProvider}}
 
-export function SolanaWalletProvider({children}:{children:React.ReactNode}){
- const [address,setAddress]=useState<string>();const [connecting,setConnecting]=useState(false);const [error,setError]=useState<string>();
- const [provider,setProvider]=useState<SolanaProvider>();
- useEffect(()=>{
-  if(typeof window==="undefined")return;
-  const detect=()=>{const detected=window.phantom?.solana??window.solana;if(detected)setProvider(current=>current??detected)};
-  detect();
-  window.addEventListener("load",detect);
-  const timer=window.setTimeout(detect,500);
-  return()=>{window.removeEventListener("load",detect);window.clearTimeout(timer)}
- },[]);
- useEffect(()=>{
-  if(!provider)return;
-  const sync=(key?:{toString:()=>string}|null)=>setAddress(key?.toString()??provider.publicKey?.toString());
-  const clear=()=>setAddress(undefined);
-  const account=(key?:{toString:()=>string}|null)=>key?setAddress(key.toString()):setAddress(undefined);
-  if(provider.publicKey)sync(provider.publicKey);
-  else provider.connect({onlyIfTrusted:true}).then(r=>sync(r.publicKey)).catch(()=>{});
-  provider.on?.("connect",sync);provider.on?.("disconnect",clear);provider.on?.("accountChanged",account);
-  return()=>{provider.off?.("connect",sync);provider.off?.("disconnect",clear);provider.off?.("accountChanged",account)}
- },[provider]);
- const connect=async()=>{setError(undefined);const active=provider??(typeof window!=="undefined"?(window.phantom?.solana??window.solana):undefined);if(!active){setError("No compatible Solana browser wallet detected");return}if(!provider)setProvider(active);setConnecting(true);try{const r=await active.connect();setAddress(r.publicKey.toString())}catch(e){setError(e instanceof Error?e.message:"Solana wallet connection failed")}finally{setConnecting(false)}};
- const disconnect=async()=>{await provider?.disconnect?.();setAddress(undefined)};
- return <Context.Provider value={{address,connected:!!address,connecting,error,connect,disconnect,provider}}>{children}</Context.Provider>
+function WalletBridge({children}:{children:React.ReactNode}){
+ const wallets=useWallets(solanaClient);const connected=useConnectedWallet(solanaClient);const ready=useIsWalletReady(solanaClient);const connectAction=useConnect(solanaClient);const disconnectAction=useDisconnect(solanaClient);const [error,setError]=useState<string>();
+ const connection=connected as {account?:{address?:string};signer?:unknown}|null;
+ const connect=async()=>{setError(undefined);if(!ready){setError("Solana wallet discovery is still starting");return}const wallet=wallets[0];if(!wallet){setError("No Wallet Standard compatible Solana wallet detected");return}try{await connectAction.dispatch(wallet)}catch(e){setError(e instanceof Error?e.message:"Solana wallet connection failed")}};
+ const disconnect=async()=>{setError(undefined);try{await disconnectAction.dispatch()}catch(e){setError(e instanceof Error?e.message:"Solana wallet disconnect failed")}};
+ const address=connection?.account?.address;
+ return <Context.Provider value={{address,connected:!!address,connecting:false,error,connect,disconnect,signer:connection?.signer}}>{children}</Context.Provider>
 }
+export function SolanaWalletProvider({children}:{children:React.ReactNode}){return <ClientProvider client={solanaClient}><WalletBridge>{children}</WalletBridge></ClientProvider>}
 export function useSolanaWallet(){const v=useContext(Context);if(!v)throw new Error("useSolanaWallet must be used inside SolanaWalletProvider");return v}
 export function shortSolanaAddress(a?:string){return a?a.slice(0,4)+"…"+a.slice(-4):""}
