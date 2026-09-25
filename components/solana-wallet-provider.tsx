@@ -17,7 +17,8 @@ declare global{interface Window{phantom?:{solana?:SolanaProvider};solana?:Solana
 
 export function SolanaWalletProvider({children}:{children:React.ReactNode}){
  const [address,setAddress]=useState<string>();const [connecting,setConnecting]=useState(false);const [error,setError]=useState<string>();
- const provider=typeof window!=="undefined"?(window.phantom?.solana??window.solana):undefined;
+ const [provider,setProvider]=useState<SolanaProvider>();
+ useEffect(()=>{if(typeof window==="undefined")return;const detected=window.phantom?.solana??window.solana;if(detected)setProvider(detected)},[]);
  useEffect(()=>{
   if(!provider)return;
   const sync=(key?:{toString:()=>string}|null)=>setAddress(key?.toString()??provider.publicKey?.toString());
