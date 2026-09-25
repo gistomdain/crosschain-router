@@ -25,5 +25,5 @@ export async function POST(request:Request){
   const swap=await sr.json();
   if(!swap.swapTransaction)return NextResponse.json({error:"Jupiter returned no transaction"},{status:502});
   return NextResponse.json({provider:"Jupiter",swapTransaction:swap.swapTransaction,freshReceive,deteriorationBps,requiresReconfirm:false,lastValidBlockHeight:swap.lastValidBlockHeight,prioritizationFeeLamports:swap.prioritizationFeeLamports??null})
- }catch{return NextResponse.json({error:"Could not safely prepare the Solana swap"},{status:502})}
+ }catch(e){if(e instanceof Error&&e.name==="AbortError")return NextResponse.json({error:"Solana route preparation timed out"},{status:504});return NextResponse.json({error:"Could not safely prepare the Solana swap"},{status:502})}
 }
