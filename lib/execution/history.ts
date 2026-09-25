@@ -2,7 +2,8 @@ export type SavedTransfer={provider:string;txHash:string;sourceChainId?:number;t
 const KEY="crosschain-router:transfers:v1",MAX=12,MAX_TEXT=80,MAX_TRACKING=160;
 const text=(v:unknown,max=MAX_TEXT)=>typeof v==="string"&&v.length>0&&v.length<=max;
 const wallet=(v:unknown)=>typeof v==="string"&&/^0x[a-fA-F0-9]{40}$/.test(v);
-function readAllTransfers():SavedTransfer[]{if(typeof window==="undefined")return[];try{const raw=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(raw)?raw.filter(valid):[]}catch{return[]}}\nconst trackingValid=(v:unknown)=>v===undefined||(!!v&&typeof v==="object"&&["orderId","requestId","routeId"].every(k=>{const x=(v as Record<string,unknown>)[k];return x===undefined||text(x,MAX_TRACKING)}));
+function readAllTransfers():SavedTransfer[]{if(typeof window==="undefined")return[];try{const raw=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(raw)?raw.filter(valid):[]}catch{return[]}}
+const trackingValid=(v:unknown)=>v===undefined||(!!v&&typeof v==="object"&&["orderId","requestId","routeId"].every(k=>{const x=(v as Record<string,unknown>)[k];return x===undefined||text(x,MAX_TRACKING)}));
 export function loadTransfers(walletAddress?:string):SavedTransfer[]{if(typeof window==="undefined"||!walletAddress||!wallet(walletAddress))return[];return readAllTransfers().filter(x=>!!x.walletAddress&&x.walletAddress.toLowerCase()===walletAddress.toLowerCase()).slice(0,MAX)}
 export function saveTransfer(transfer:SavedTransfer){if(typeof window==="undefined"||!valid(transfer))return;const existing=readAllTransfers();const next=[transfer,...existing.filter(x=>x.txHash!==transfer.txHash)].slice(0,MAX);localStorage.setItem(KEY,JSON.stringify(next))}
 export function removeTransfer(txHash:string){if(typeof window==="undefined"||!/^0x[a-fA-F0-9]{64}$/.test(txHash))return;const existing=readAllTransfers();localStorage.setItem(KEY,JSON.stringify(existing.filter(x=>x.txHash!==txHash)))}
