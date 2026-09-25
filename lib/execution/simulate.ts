@@ -1,4 +1,5 @@
 import type {ProviderTransaction} from "@/lib/providers/types";
 export type SimulationResult={ok:boolean;reason?:string};
 export async function simulateSequence(call:(tx:ProviderTransaction)=>Promise<string>,txs:ProviderTransaction[]):Promise<SimulationResult>{for(let i=0;i<txs.length;i++){try{await call(txs[i])}catch(e){return{ok:false,reason:e instanceof Error?e.message:"Simulation failed at step "+(i+1)}}}return{ok:true}}
+export async function simulateTransaction(call:(tx:ProviderTransaction)=>Promise<string>,tx:ProviderTransaction):Promise<SimulationResult>{try{await call(tx);return{ok:true}}catch(e){return{ok:false,reason:e instanceof Error?e.message:"Transaction simulation failed"}}}
 export function isApprovalTransaction(tx:ProviderTransaction){return tx.data?.slice(0,10).toLowerCase()==="0x095ea7b3"}
