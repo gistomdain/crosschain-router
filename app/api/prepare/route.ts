@@ -4,7 +4,7 @@ const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;const ADDRESS=/^0x[a-fA-F0-9]
 export async function POST(request:Request){
  const body=await request.json().catch(()=>({}));const amountText=typeof body.amount==="string"?body.amount:"";
  if(amountText.length===0||amountText.length>80||!/^\d+(?:\.\d+)?$/.test(amountText)||!body.provider||!body.userAddress)return NextResponse.json({error:"Invalid preparation request"},{status:400});
- const amount=Number(amountText);if(!Number.isFinite(amount)||amount<=0)return NextResponse.json({error:"Invalid preparation amount"},{status:400});
+ if(!/[1-9]/.test(amountText))return NextResponse.json({error:"Invalid preparation amount"},{status:400});
  if(!ADDRESS.test(String(body.userAddress)))return NextResponse.json({error:"Invalid EVM wallet address"},{status:400});
  const provider=getProvider(String(body.provider));if(!provider)return NextResponse.json({error:"Unknown provider"},{status:404});
  const input={fromChain:body.fromChain,toChain:body.toChain,fromToken:String(body.fromToken),toToken:String(body.toToken),amount:String(body.amount),userAddress:String(body.userAddress)};
@@ -38,6 +38,6 @@ export async function POST(request:Request){
   if(deteriorationBps>max)return NextResponse.json({error:"Route changed materially. Review the fresh quote before signing.",receive:fresh,deteriorationBps,requiresReconfirm:true},{status:409});
   const fee=typeof quote.feeUsd==="number"&&Number.isFinite(quote.feeUsd)&&quote.feeUsd>=0?quote.feeUsd:undefined;const etaSeconds=typeof quote.etaSeconds==="number"&&Number.isFinite(quote.etaSeconds)&&quote.etaSeconds>0?quote.etaSeconds:undefined;
   const tracking=quote.tracking;if(tracking!==undefined){if(typeof tracking!=="object"||tracking===null)return NextResponse.json({error:"Provider returned malformed tracking metadata"},{status:502});for(const key of ["orderId","requestId","routeId"] as const){const value=tracking[key];if(value!==undefined&&(typeof value!=="string"||value.length===0||value.length>160))return NextResponse.json({error:"Provider returned malformed tracking metadata"},{status:502})}}
-  return NextResponse.json({provider:quote.provider,receive:fresh,fee,etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking,deteriorationBps,requiresReconfirm:false})
+  return NextResponse.json({provider:quote.provider,receive:fresh,fee,etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking,capabilities:quote.capabilities,deteriorationBps,requiresReconfirm:false})
  }catch(e){if(e instanceof Error&&e.name==="AbortError")return NextResponse.json({error:"Route preparation timed out"},{status:504});return NextResponse.json({error:"Could not safely prepare the selected route"},{status:502})}
 }
