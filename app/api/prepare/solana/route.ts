@@ -13,14 +13,14 @@ export async function POST(request:Request){
  if(process.env.JUPITER_API_KEY)headers["x-api-key"]=process.env.JUPITER_API_KEY;
  try{
   const qp=new URLSearchParams({inputMint:input.address,outputMint:output.address,amount,slippageBps:String(slippageBps)});
-  const qr=await fetch("https://api.jup.ag/swap/v1/quote?"+qp,{headers,cache:"no-store"});
+  const quoteController=new AbortController();const quoteTimer=setTimeout(()=>quoteController.abort(),8000);let qr:Response;try{qr=await fetch("https://api.jup.ag/swap/v1/quote?"+qp,{headers,cache:"no-store",signal:quoteController.signal})}finally{clearTimeout(quoteTimer)};
   if(!qr.ok)return NextResponse.json({error:"Fresh Jupiter quote unavailable"},{status:502});
   const quoteResponse=await qr.json();
   const freshReceive=Number(fromSolanaBaseUnits(String(quoteResponse.outAmount),output.decimals));
   const reviewedReceive=Number(body.reviewedReceive);
   const deteriorationBps=Number.isFinite(reviewedReceive)&&reviewedReceive>0?Math.max(0,Math.round((reviewedReceive-freshReceive)/reviewedReceive*10000)):0;
   if(deteriorationBps>MAX_DETERIORATION_BPS)return NextResponse.json({error:"Route changed materially. Review the fresh quote before signing.",freshReceive,deteriorationBps,requiresReconfirm:true},{status:409});
-  const sr=await fetch("https://api.jup.ag/swap/v1/swap",{method:"POST",headers,body:JSON.stringify({quoteResponse,userPublicKey:body.userPublicKey,dynamicComputeUnitLimit:true,prioritizationFeeLamports:"auto"})});
+  const swapController=new AbortController();const swapTimer=setTimeout(()=>swapController.abort(),10000);let sr:Response;try{sr=await fetch("https://api.jup.ag/swap/v1/swap",{method:"POST",headers,body:JSON.stringify({quoteResponse,userPublicKey:body.userPublicKey,dynamicComputeUnitLimit:true,prioritizationFeeLamports:"auto"}),signal:swapController.signal})}finally{clearTimeout(swapTimer)};
   if(!sr.ok)return NextResponse.json({error:"Jupiter transaction preparation failed"},{status:502});
   const swap=await sr.json();
   if(!swap.swapTransaction)return NextResponse.json({error:"Jupiter returned no transaction"},{status:502});
