@@ -16,7 +16,7 @@ export function deteriorationBps(reviewed:string,fresh:string):number{
 export function routeExpired(expiresAt:string|undefined,now=Date.now(),bufferMs=3000):boolean{
  return !!expiresAt&&(!Number.isFinite(Date.parse(expiresAt))||Date.parse(expiresAt)<=now+bufferMs);
 }
-type PreparedShape={receive:number|string;tx:{to:string;data:string;value?:string};approvalTxs:unknown[];routeMeta?:unknown;capabilities?:unknown};
+type PreparedShape={receive:number|string;minReceive?:string;tx:{to:string;data:string;value?:string};approvalTxs:unknown[];routeMeta?:unknown;capabilities?:unknown};
 export function samePreparedRoute(a:PreparedShape,b:PreparedShape):boolean{
- return a.tx.to.toLowerCase()===b.tx.to.toLowerCase()&&a.tx.data.toLowerCase()===b.tx.data.toLowerCase()&&String(a.tx.value??"0x0").toLowerCase()===String(b.tx.value??"0x0").toLowerCase()&&String(a.receive)===String(b.receive)&&JSON.stringify(a.approvalTxs)===JSON.stringify(b.approvalTxs)&&JSON.stringify(a.routeMeta)===JSON.stringify(b.routeMeta)&&JSON.stringify(a.capabilities)===JSON.stringify(b.capabilities);
+ return a.tx.to.toLowerCase()===b.tx.to.toLowerCase()&&a.tx.data.toLowerCase()===b.tx.data.toLowerCase()&&String(a.tx.value??"0x0").toLowerCase()===String(b.tx.value??"0x0").toLowerCase()&&String(a.receive)===String(b.receive)&&a.minReceive===b.minReceive&&JSON.stringify(a.approvalTxs)===JSON.stringify(b.approvalTxs)&&JSON.stringify(a.routeMeta)===JSON.stringify(b.routeMeta)&&JSON.stringify(a.capabilities)===JSON.stringify(b.capabilities);
 }
