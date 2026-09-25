@@ -30,12 +30,13 @@ export async function POST(request:Request){
    if(quote.approvalPolicy?.expectedAmount){try{if(decoded.amount<BigInt(quote.approvalPolicy.expectedAmount))return NextResponse.json({error:"Approval amount is below provider execution requirement"},{status:422})}catch{return NextResponse.json({error:"Provider returned malformed approval policy"},{status:422})}}
    if(expectedApproval){const maximum=expectedApproval+(expectedApproval*MAX_APPROVAL_BUFFER_BPS/10000n);if(decoded.amount>maximum)return NextResponse.json({error:"Provider requested an unnecessarily large token approval"},{status:422});}
   }
-  if(quote.expiresAt&&Date.parse(quote.expiresAt)<=Date.now()+3000)return NextResponse.json({error:"Fresh route expired before signing"},{status:409});
+  if(quote.expiresAt){const expires=Date.parse(quote.expiresAt);if(!Number.isFinite(expires))return NextResponse.json({error:"Provider returned malformed route expiry"},{status:502});if(expires<=Date.now()+3000)return NextResponse.json({error:"Fresh route expired before signing"},{status:409});}
   const reviewed=Number(body.reviewedReceive||0),fresh=Number(quote.receive);
   if(!Number.isFinite(fresh)||fresh<=0)return NextResponse.json({error:"Provider returned an invalid destination amount"},{status:502});
   const deteriorationBps=reviewed>0&&fresh<reviewed?((reviewed-fresh)/reviewed)*10000:0;
   const max=Math.min(300,Math.max(1,Number(body.maxDeteriorationBps??30)||30));
   if(deteriorationBps>max)return NextResponse.json({error:"Route changed materially. Review the fresh quote before signing.",receive:fresh,deteriorationBps,requiresReconfirm:true},{status:409});
-  return NextResponse.json({provider:quote.provider,receive:fresh,fee:quote.feeUsd,etaSeconds:quote.etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking:quote.tracking,deteriorationBps,requiresReconfirm:false})
+  const fee=typeof quote.feeUsd==="number"&&Number.isFinite(quote.feeUsd)&&quote.feeUsd>=0?quote.feeUsd:undefined;const etaSeconds=typeof quote.etaSeconds==="number"&&Number.isFinite(quote.etaSeconds)&&quote.etaSeconds>0?quote.etaSeconds:undefined;
+  return NextResponse.json({provider:quote.provider,receive:fresh,fee,etaSeconds,expiresAt:quote.expiresAt,approvalTxs:approvals,tx:quote.tx,tracking:quote.tracking,deteriorationBps,requiresReconfirm:false})
  }catch(e){if(e instanceof Error&&e.name==="AbortError")return NextResponse.json({error:"Route preparation timed out"},{status:504});return NextResponse.json({error:"Could not safely prepare the selected route"},{status:502})}
 }
