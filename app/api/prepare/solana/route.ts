@@ -1,9 +1,9 @@
-import {NextResponse} from "next/server";import {fromSolanaBaseUnits,getSolanaMint,parseSolanaAmount} from "@/lib/solana";
+import {NextResponse} from "next/server";import {fromSolanaBaseUnits,getSolanaMint,isSolanaAddress,parseSolanaAmount} from "@/lib/solana";
 export const dynamic="force-dynamic";
 const MAX_DETERIORATION_BPS=50;
 export async function POST(request:Request){
  const body=await request.json().catch(()=>({}));
- if(!body.userPublicKey)return NextResponse.json({error:"Solana wallet is required"},{status:400});
+ if(!isSolanaAddress(body.userPublicKey))return NextResponse.json({error:"Valid Solana wallet is required"},{status:400});
  const input=getSolanaMint(String(body.fromToken||"")),output=getSolanaMint(String(body.toToken||""));
  if(!input||!output||input.address===output.address)return NextResponse.json({error:"Unsupported Solana token pair"},{status:400});
  const amount=parseSolanaAmount(String(body.amount||""),input.decimals);
