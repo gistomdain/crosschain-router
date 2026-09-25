@@ -1,61 +1,43 @@
 # Crosschain Router
 
-A responsive cross-chain route comparison and execution interface.
+A responsive, non-custodial route comparison and wallet execution interface. Routes are requested from live providers; the app does not hold funds or wallet keys.
 
-## Build 02
-- Responsive swap/bridge interface and Route Intelligence panel
-- Demo normalized quotes for Relay, Across, LI.FI and deBridge
-- Quote API scaffold at `/api/quote`
-- Chain registry: Ethereum, Base, Arbitrum, Optimism, Polygon, BNB Chain, Solana
-- Token registry: USDC, USDT, ETH, SOL, WBTC
-- Provider adapter interface for LI.FI, Relay, Across and deBridge
-- Parallel provider orchestration foundation
-- Route ranking: best return, fastest and lowest fee
-- Quote-expiry / stale-quote utility
-- Health endpoint at `/api/health`
-- Security rules for non-custodial execution
-- Environment template for server-side provider credentials
+## Current execution paths
 
-> Current UI quote values remain illustrative. Provider adapter files intentionally return no executable transaction until canonical token addresses, provider-specific request validation and live credentials are configured.
+- EVM cross-chain quotes from Relay, Across, LI.FI, and deBridge, subject to provider support for the selected pair.
+- EVM same-chain swap quotes through LI.FI.
+- Solana same-chain SOL/USDC swaps through Jupiter. Solana USDT and EVM-to-Solana execution are not enabled.
+- Wallet-side signing, transaction simulation and gas estimation, fresh route comparison before signing, expiry protection, approval recovery, and transaction status display.
+
+A provider can return no route or become unavailable. Quoted cost and arrival time are estimates. A submitted cross-chain transfer may need separate source and destination confirmation; never retry a transfer just because status polling is delayed.
 
 ## Run locally
+
+Use Node.js 24 for the included TypeScript test runner.
 
 ```bash
 cp .env.example .env.local
 npm install
+npm test
+npm run typecheck
+npm run build
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Open http://localhost:3000. Provider keys and RPC endpoints are configured server-side in `.env.local`. Keep credentials out of `NEXT_PUBLIC_` variables. A compatible browser wallet is required for execution.
 
-## Architecture
+## Production setup
 
-```
-UI
-  -> Quote API
-     -> Provider adapters
-        -> LI.FI
-        -> Relay
-        -> Across
-        -> deBridge
-     -> Normalize
-     -> Rank
-     -> Re-quote protection
-  -> Wallet-side execution
-  -> Transaction tracker
-```
+1. Configure reliable RPC endpoints for each enabled EVM chain and Solana. Source receipt tracking is limited when an EVM endpoint is missing.
+2. Add provider credentials where required by the provider or status service. Verify each provider account, supported networks, rate limits, and quote/transaction schemas against its current documentation.
+3. Configure Jupiter and Solana RPC endpoints for the Solana lane. Test wallet compatibility and confirmation behavior on real wallets.
+4. Run `npm test`, `npm run typecheck`, and `npm run build`; then perform wallet-funded, low-value end-to-end tests for every enabled chain/provider pair before public launch.
+5. Monitor provider and RPC errors, delayed transfers, failed approvals, and refunds. Confirm explorer and status links for every chain.
 
-## Next milestones
+This repository has no custodial backend. Approval hashes and submitted transfer receipts are stored locally in the user's browser for recovery; clearing browser storage removes that local history. Approval confirmation never automatically starts a swap. A fresh quote and explicit wallet review are required.
 
-1. Canonical token-address registry per chain.
-2. Wire live provider request/response mappings.
-3. Add wagmi/viem EVM wallet connectivity.
-4. Add Solana wallet adapter.
-5. Implement chain/token selector modals.
-6. Quote expiry countdown and automatic re-quote.
-7. Transaction simulation, execution and status tracking.
-8. Destination actions and transaction recovery.
+## Known limits
 
-## Security
-
-The application must never request or store seed phrases or private keys. Execution should be performed through user wallet signatures, with transaction targets and quote freshness validated immediately before signing.
+- Provider availability and destination tracking depend on external APIs and configured credentials.
+- There is no automated funded mainnet transaction test in this repository. The included tests cover route deterioration, expiry, and changed transaction detection.
+- Transactions already broadcast cannot be cancelled by this interface. A wallet or RPC timeout does not prove that a transaction failed; check its hash and chain status before trying again.
