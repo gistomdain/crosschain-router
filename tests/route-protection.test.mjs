@@ -19,9 +19,10 @@ test("expiry includes the wallet-signing safety window",()=>{
 });
 
 test("changed output, transaction, and approvals require another review",()=>{
- const old={receive:"100",tx:{to:"0xabc",data:"0x1234",value:"0x0"},approvalTxs:[],routeMeta:{source:"Bridge"}};
+ const old={receive:"100",minReceive:"99",tx:{to:"0xabc",data:"0x1234",value:"0x0"},approvalTxs:[],routeMeta:{source:"Bridge"}};
  assert.equal(samePreparedRoute(old,{...old,tx:{...old.tx,to:"0xAbC"}}),true);
  assert.equal(samePreparedRoute(old,{...old,receive:"99"}),false);
+ assert.equal(samePreparedRoute(old,{...old,minReceive:"98"}),false);
  assert.equal(samePreparedRoute(old,{...old,tx:{...old.tx,data:"0x5678"}}),false);
  assert.equal(samePreparedRoute(old,{...old,approvalTxs:[{to:"0xdef"}]}),false);
 });
