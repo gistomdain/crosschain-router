@@ -6,8 +6,8 @@ export async function POST(request:Request){
  if(!body.userPublicKey)return NextResponse.json({error:"Solana wallet is required"},{status:400});
  const input=getSolanaMint(String(body.fromToken||"")),output=getSolanaMint(String(body.toToken||""));
  if(!input||!output||input.address===output.address)return NextResponse.json({error:"Unsupported Solana token pair"},{status:400});
- const amount=toSolanaBaseUnits(String(body.amount||"0"),input.decimals);
- if(BigInt(amount)<=0n)return NextResponse.json({error:"Invalid amount"},{status:400});
+ const amount=parseSolanaAmount(String(body.amount||""),input.decimals);
+ if(!amount)return NextResponse.json({error:"Invalid amount"},{status:400});
  const slippageBps=Math.min(300,Math.max(1,Number(body.slippageBps??50)||50));
  const headers:Record<string,string>={"content-type":"application/json",accept:"application/json"};
  if(process.env.JUPITER_API_KEY)headers["x-api-key"]=process.env.JUPITER_API_KEY;
