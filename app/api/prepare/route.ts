@@ -2,8 +2,9 @@ import {NextResponse} from "next/server";import {getProvider} from "@/lib/provid
 export const dynamic="force-dynamic";
 const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;const ADDRESS=/^0x[a-fA-F0-9]{40}$/;
 export async function POST(request:Request){
- const body=await request.json().catch(()=>({}));const amount=Number(body.amount);
- if(!Number.isFinite(amount)||amount<=0||!body.provider||!body.userAddress)return NextResponse.json({error:"Invalid preparation request"},{status:400});
+ const body=await request.json().catch(()=>({}));const amountText=typeof body.amount==="string"?body.amount:"";
+ if(amountText.length===0||amountText.length>80||!/^\d+(?:\.\d+)?$/.test(amountText)||!body.provider||!body.userAddress)return NextResponse.json({error:"Invalid preparation request"},{status:400});
+ const amount=Number(amountText);if(!Number.isFinite(amount)||amount<=0)return NextResponse.json({error:"Invalid preparation amount"},{status:400});
  if(!ADDRESS.test(String(body.userAddress)))return NextResponse.json({error:"Invalid EVM wallet address"},{status:400});
  const provider=getProvider(String(body.provider));if(!provider)return NextResponse.json({error:"Unknown provider"},{status:404});
  const input={fromChain:body.fromChain,toChain:body.toChain,fromToken:String(body.fromToken),toToken:String(body.toToken),amount:String(body.amount),userAddress:String(body.userAddress)};
