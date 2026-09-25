@@ -8,5 +8,5 @@ export const lifiProvider:QuoteProvider={name:"LI.FI",async quote(input:QuoteReq
  const out=q?.estimate?.toAmount;if(!out||!q?.transactionRequest)return null;
  const fees=Array.isArray(q.estimate?.feeCosts)?q.estimate.feeCosts.reduce((n:number,x:any)=>n+Number(x.amountUSD||0),0):0;
  const gas=Array.isArray(q.estimate?.gasCosts)?q.estimate.gasCosts.reduce((n:number,x:any)=>n+Number(x.amountUSD||0),0):0;
- return{id:"lifi",provider:"LI.FI",receive:fromBaseUnits(String(out),to.decimals),feeUsd:fees+gas,etaSeconds:Number(q.estimate?.executionDuration||0)||undefined,steps:[String(input.fromChain),"LI.FI",String(input.toChain)],expiresAt:new Date(Date.now()+20000).toISOString(),tx:{to:q.transactionRequest.to,data:q.transactionRequest.data,value:q.transactionRequest.value},raw:q};
+ return{id:"lifi",provider:"LI.FI",receive:fromBaseUnits(String(out),to.decimals),feeUsd:fees+gas,etaSeconds:Number(q.estimate?.executionDuration||0)||undefined,steps:[String(input.fromChain),"LI.FI",String(input.toChain)],expiresAt:new Date(Date.now()+20000).toISOString(),tx:{to:q.transactionRequest.to,data:q.transactionRequest.data,value:q.transactionRequest.value},routeMeta:{source:"LI.FI",execution:String(input.fromChain)===String(input.toChain)?"swap":"swap-bridge"},raw:q};
 }};
