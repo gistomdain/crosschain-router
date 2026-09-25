@@ -1,6 +1,6 @@
-import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";
+import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {getToken,toBaseUnits} from "@/lib/token-addresses";
 export const dynamic="force-dynamic";
-const MAX_APPROVALS=2;
+const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;
 export async function POST(request:Request){
  const body=await request.json().catch(()=>({}));const amount=Number(body.amount);
  if(!Number.isFinite(amount)||amount<=0||!body.provider||!body.userAddress)return NextResponse.json({error:"Invalid preparation request"},{status:400});
@@ -12,13 +12,16 @@ export async function POST(request:Request){
   if(!quote||!quote.tx)return NextResponse.json({error:"Fresh executable quote unavailable"},{status:409});
   const validation=validateProviderTransaction(quote.tx,input.fromChain);
   if(!validation.ok)return NextResponse.json({error:"Provider transaction failed validation",details:validation.errors},{status:422});
-  const approvals=quote.approvalTxs??[];
+  const approvals=quote.approvalTxs??[];const sourceToken=getToken(input.fromChain,input.fromToken);let expectedApproval:bigint|undefined;
+  if(sourceToken){try{expectedApproval=BigInt(toBaseUnits(input.amount,sourceToken.decimals))}catch{return NextResponse.json({error:"Invalid source token amount"},{status:400})}}
+  if(approvals.length&&!sourceToken)return NextResponse.json({error:"Cannot verify approval for this source token"},{status:422});
   if(approvals.length>MAX_APPROVALS)return NextResponse.json({error:"Route requires an unexpected number of approvals"},{status:422});
   for(const approval of approvals){
    const check=validateProviderTransaction(approval,input.fromChain);const decoded=decodeApproval(approval);
    if(!check.ok||!isApprovalTransaction(approval)||!decoded.standard)return NextResponse.json({error:"Provider approval transaction failed validation",details:check.errors},{status:422});
    if(decoded.amount<=0n)return NextResponse.json({error:"Provider requested an invalid token approval amount"},{status:422});
-   if(decoded.amount>BigInt(input.fromChain===input.toChain?"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff":"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))return NextResponse.json({error:"Provider requested an invalid token approval amount"},{status:422});
+   if(sourceToken&&decoded.token.toLowerCase()!==sourceToken.address.toLowerCase())return NextResponse.json({error:"Provider requested approval for an unexpected token"},{status:422});
+   if(expectedApproval){const maximum=expectedApproval+(expectedApproval*MAX_APPROVAL_BUFFER_BPS/10000n);if(decoded.amount>maximum)return NextResponse.json({error:"Provider requested an unnecessarily large token approval"},{status:422});}
   }
   if(quote.expiresAt&&Date.parse(quote.expiresAt)<=Date.now()+3000)return NextResponse.json({error:"Fresh route expired before signing"},{status:409});
   const reviewed=Number(body.reviewedReceive||0),fresh=Number(quote.receive);
