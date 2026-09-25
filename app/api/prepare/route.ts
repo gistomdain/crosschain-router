@@ -1,4 +1,4 @@
-import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {getToken,toBaseUnits} from "@/lib/token-addresses";
+import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {getToken,toBaseUnits} from "@/lib/token-addresses";import {validateProviderRelationship} from "@/lib/execution/provider-relationship";
 export const dynamic="force-dynamic";
 const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;const ADDRESS=/^0x[a-fA-F0-9]{40}$/;
 export async function POST(request:Request){
@@ -10,6 +10,7 @@ export async function POST(request:Request){
  try{
   const quote=await provider.quote(input);
   if(!quote||!quote.tx)return NextResponse.json({error:"Fresh executable quote unavailable"},{status:409});
+  const relationship=validateProviderRelationship(quote);if(!relationship.ok)return NextResponse.json({error:"Provider transaction relationship failed validation",details:relationship.errors},{status:422});
   const validation=validateProviderTransaction(quote.tx,input.fromChain);
   if(!validation.ok)return NextResponse.json({error:"Provider transaction failed validation",details:validation.errors},{status:422});
   const approvals=quote.approvalTxs??[];const sourceToken=getToken(input.fromChain,input.fromToken);let expectedApproval:bigint|undefined;
