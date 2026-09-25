@@ -1,0 +1,6 @@
+export type ProviderTrackResult={status:string;terminal:boolean;destinationTxHash?:string|null;refundTxHash?:string|null;note?:string};
+export async function trackProvider(provider:string,txHash:string):Promise<ProviderTrackResult|null>{const p=provider.toLowerCase();
+ if(p==="lifi"||p==="li.fi"){const params=new URLSearchParams({txHash});const headers:Record<string,string>={accept:"application/json"};if(process.env.LIFI_API_KEY)headers["x-lifi-api-key"]=process.env.LIFI_API_KEY;const r=await fetch("https://li.quest/v1/status?"+params,{headers,cache:"no-store"});if(!r.ok)return null;const d=await r.json();const raw=String(d.status||"").toUpperCase();const status=raw==="DONE"?"filled":raw==="FAILED"?"failed":raw==="INVALID"?"failed":raw==="PENDING"?"pending":"submitted";return{status,terminal:["filled","failed"].includes(status),destinationTxHash:d.receiving?.txHash??d.substatusMessage?.txHash??null,note:d.substatusMessage||undefined}}
+ if(p==="debridge"){return{status:"submitted",terminal:false,note:"deBridge tracking requires the DLN orderId captured when the order is created."}}
+ if(p==="relay"){return{status:"submitted",terminal:false,note:"Relay destination tracking will activate when the Relay quote adapter stores its request identifier."}}
+ return null}
