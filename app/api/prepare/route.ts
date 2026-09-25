@@ -8,7 +8,7 @@ export async function POST(request:Request){
  const input={fromChain:body.fromChain,toChain:body.toChain,fromToken:String(body.fromToken),toToken:String(body.toToken),amount:String(body.amount),userAddress:String(body.userAddress)};
  if(typeof input.fromChain!=="number")return NextResponse.json({error:"EVM preparation requires a numeric source chain"},{status:400});
  try{
-  const quote=await provider.quote(input);
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);let quote;try{quote=await provider.quote(input,controller.signal)}finally{clearTimeout(timer)}
   if(!quote||!quote.tx)return NextResponse.json({error:"Fresh executable quote unavailable"},{status:409});
   const relationship=validateProviderRelationship(quote);if(!relationship.ok)return NextResponse.json({error:"Provider transaction relationship failed validation",details:relationship.errors},{status:422});
   const validation=validateProviderTransaction(quote.tx,input.fromChain);
