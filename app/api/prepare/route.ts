@@ -1,4 +1,4 @@
-import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";
+import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";
 export const dynamic="force-dynamic";
 const MAX_APPROVALS=2;
 export async function POST(request:Request){
@@ -15,8 +15,10 @@ export async function POST(request:Request){
   const approvals=quote.approvalTxs??[];
   if(approvals.length>MAX_APPROVALS)return NextResponse.json({error:"Route requires an unexpected number of approvals"},{status:422});
   for(const approval of approvals){
-   const check=validateProviderTransaction(approval,input.fromChain);
-   if(!check.ok||!isApprovalTransaction(approval))return NextResponse.json({error:"Provider approval transaction failed validation",details:check.errors},{status:422});
+   const check=validateProviderTransaction(approval,input.fromChain);const decoded=decodeApproval(approval);
+   if(!check.ok||!isApprovalTransaction(approval)||!decoded.standard)return NextResponse.json({error:"Provider approval transaction failed validation",details:check.errors},{status:422});
+   if(decoded.amount<=0n)return NextResponse.json({error:"Provider requested an invalid token approval amount"},{status:422});
+   if(decoded.amount>BigInt(input.fromChain===input.toChain?"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff":"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))return NextResponse.json({error:"Provider requested an invalid token approval amount"},{status:422});
   }
   if(quote.expiresAt&&Date.parse(quote.expiresAt)<=Date.now()+3000)return NextResponse.json({error:"Fresh route expired before signing"},{status:409});
   const reviewed=Number(body.reviewedReceive||0),fresh=Number(quote.receive);
