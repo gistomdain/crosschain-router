@@ -25,3 +25,5 @@ button,input{font:inherit}button{line-height:1.35}.card,.review,.route,.selector
 
 /* Rounded, restrained sans-serif typography. */
 body,button,input{font-family:"DM Sans","Avenir Next",Arial,sans-serif}h1{font-weight:700;letter-spacing:-.04em}.brand,.title b,.provider b,.reviewHead b{letter-spacing:-.015em}.routeLeaders small,.meta,.pill{letter-spacing:.02em}
+
+#app-startup-error:not([hidden]){position:fixed;z-index:100;left:12px;right:12px;bottom:12px;padding:14px 16px;background:#3a2330;border:1px solid #e59b82;color:#fff;border-radius:12px;font-size:14px;line-height:1.4;box-shadow:0 12px 36px #0009}
