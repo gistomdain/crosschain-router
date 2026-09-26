@@ -102,3 +102,10 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 @media(max-width:760px){.grid:not(.setupOnly){grid-template-columns:1fr;gap:14px}.routeLeaders{gap:7px}.gasAssist{flex-direction:column}.gasAssist em{align-self:flex-start}}
 @media(max-width:450px){.routeLeaders{grid-template-columns:repeat(3,minmax(0,1fr))}.routeLeaders button{padding:9px 7px;min-height:76px}.routeLeaders small{font-size:9px}.routeLeaders b{font-size:12px}.routeLeaders span{font-size:10px}.confidenceGrid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.route{transition:none}}
+
+/* Avoid orphaned confidence tiles and keep gas status beside its explanation. */
+.confidenceGrid>div:last-child:nth-child(odd){grid-column:1/-1}
+.gasAssist{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:12px;row-gap:8px}
+.gasAssist>div{min-width:0}.gasAssist em{justify-self:end}
+@media(max-width:760px){.gasAssist{grid-template-columns:1fr}.gasAssist em{justify-self:start}}
+@media(max-width:450px){.confidenceGrid>div:last-child:nth-child(odd){grid-column:auto}}
