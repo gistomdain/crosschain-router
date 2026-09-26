@@ -26,6 +26,12 @@ npm run dev
 
 Open http://localhost:3000. Provider keys and RPC endpoints are configured server-side in `.env.local`. Keep credentials out of `NEXT_PUBLIC_` variables. A compatible browser wallet is required for execution.
 
+## Read-only live quote check
+
+With the app running and provider credentials configured, set `ROUTER_TEST_WALLET` to a public EVM address and run `npm run verify:live`. The check requests a Base-to-Arbitrum 1 USDC quote by default, then prepares each returned route. It prints provider health and whether the prepared transaction passes basic shape and expiry checks. It does not connect a wallet, sign, approve, or submit a transaction. You can override `ROUTER_BASE_URL`, `ROUTER_FROM_CHAIN`, `ROUTER_TO_CHAIN`, `ROUTER_FROM_TOKEN`, `ROUTER_TO_TOKEN`, and `ROUTER_AMOUNT`.
+
+A provider may require an account with sufficient balance to return an executable route. A passing quote check does not replace a funded transfer test.
+
 ## Production setup
 
 1. Configure reliable RPC endpoints for each enabled EVM chain and Solana. Source receipt tracking is limited when an EVM endpoint is missing.
