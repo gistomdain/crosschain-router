@@ -79,3 +79,26 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .selector button:focus-visible,.tokenSearch input:focus-visible{outline:2px solid #b7c8ff;outline-offset:2px}
 @media(max-width:500px){.selector{padding:17px;border-radius:20px;max-height:90vh}.selectorHead{margin-bottom:18px}.selectorHead b{font-size:19px}.chainGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.chainGrid button{min-height:47px}}
 @media(prefers-reduced-motion:reduce){.chainGrid button,.tokenList button{transition:none}}
+
+/* Keep route analysis and gas guidance aligned with the transfer card. */
+.grid:not(.setupOnly){grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.grid:not(.setupOnly)>.card{min-width:0}
+#routes .title{margin-bottom:14px}
+.tabs{gap:8px;margin:0 0 12px}.tabs button{background:#1a1e28;border:1px solid #303544;color:#aeb8c9;border-radius:11px;padding:10px 7px;min-height:44px}
+.tabs button.active{background:#242e49!important;border-color:#9fb4f6!important;color:#f5f7ff!important}
+.routeLeaders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 14px}
+.routeLeaders button{min-width:0;min-height:78px;padding:11px;background:#191d27;border:1px solid #303544;border-radius:12px;color:#eaf0ff;line-height:1.35;overflow-wrap:anywhere}
+.routeLeaders button:hover{background:#252d40;border-color:#8399cd}.routeLeaders small{font-size:10px;color:#b5c6ff}.routeLeaders b{font-size:13px}.routeLeaders span{font-size:11px;color:#b4bed1}.routeLeaders button:nth-child(4){grid-column:1/-1;min-height:58px}
+.providerHealth{gap:6px;margin:0 0 12px}.providerHealth span{background:#191d27;border-color:#303544;color:#aeb8c9;padding:6px 8px}.providerHealth small{color:#9ea9bd}
+.routes{gap:9px}.route{background:#191d27;border-color:#303544;border-radius:14px;padding:13px;transition:border-color .2s,background .2s}.route:hover{background:#222a3b;border-color:#7f94c5}.route.selected{background:#232d45;border-color:#95aceb}.provider>i{background:#364362;color:#e8eeff}.provider small{color:#aeb8c9}.provider em{background:#b7c8ff;color:#151a2a}
+.quote span{color:#aeb8ca}.quote b{color:#f3f6ff}.routeDelta{color:#b4c4e7!important}
+.insight,.previewNotice,.smart,.confidence,.providerHealthStrip,.routeEmpty{background:#191d27;border-color:#303544;color:#bdc8db;border-radius:12px}
+.insight p,.routeEmpty small{color:#b5bfd1}.insight svg,.smart summary b,.confidenceHead svg{color:#b7c8ff}
+.smart{margin-top:13px}.smart summary{min-height:20px}.smart section{border-top-color:#303544}.path i{background:#242d42}.path strong{background:#252f47;border-color:#6479ab;color:#d7e2ff}
+.quoteFreshness{color:#aeb8c9;border-top-color:#303544}.quoteFreshness button{background:#252d40;color:#d6e2ff;cursor:pointer}.quoteFreshness button:hover{background:#354363}
+.confidence{margin:10px 0 13px;padding:12px}.confidenceHead{margin:0;gap:10px}.confidenceHead small{color:#aab5c8}.confidenceGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.confidenceGrid>div{min-width:0;padding:10px;background:#202633;border:1px solid #343b4b;border-radius:10px}.confidenceGrid>div.good,.confidenceGrid>div.caution{border-color:#485674;color:#c3d0e8}.confidenceGrid b{color:#eff3fc;font-size:12px}.confidenceGrid small{color:#b1bccf;line-height:1.4;overflow-wrap:anywhere}
+.gasAssist{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:12px 0;padding:13px;background:#191d27;border:1px solid #343b4b;border-radius:12px}.gasAssist.low,.gasAssist.funded{background:#20283b;border-color:#56698f}.gasAssist>div{min-width:0;flex:1;gap:10px}.gasAssist svg{flex:0 0 auto;color:#b7c8ff}.gasAssist span{min-width:0;gap:4px}.gasAssist b{font-size:13px;color:#f0f4fd}.gasAssist small{color:#b3bfd1;line-height:1.5;overflow-wrap:anywhere}.gasAssist em,.gasAssist.low em,.gasAssist.funded em{flex:0 0 auto;background:#2b3651;color:#d5e1ff;padding:6px 8px;border-radius:8px;white-space:nowrap}
+.review{background:#111319;border-color:#363b4a}.reviewRows{border-color:#303544}.reviewRows span{border-bottom-color:#303544}.reviewFlow span{background:#191d27;border-color:#303544}
+@media(max-width:760px){.grid:not(.setupOnly){grid-template-columns:1fr;gap:14px}.routeLeaders{gap:7px}.gasAssist{flex-direction:column}.gasAssist em{align-self:flex-start}}
+@media(max-width:450px){.routeLeaders{grid-template-columns:repeat(3,minmax(0,1fr))}.routeLeaders button{padding:9px 7px;min-height:76px}.routeLeaders small{font-size:9px}.routeLeaders b{font-size:12px}.routeLeaders span{font-size:10px}.confidenceGrid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.route{transition:none}}
