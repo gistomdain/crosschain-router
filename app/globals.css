@@ -28,3 +28,7 @@ body,button,input{font-family:"DM Sans","Avenir Next",Arial,sans-serif}h1{font-w
 
 
 .previewNotice{margin:12px 0;padding:10px 12px;background:#19283e;border:1px solid #344969;border-radius:10px;color:#c5d5ed;font-size:13px;line-height:1.45}
+
+/* Keep the first visit focused on choosing a swap pair. */
+.grid.setupOnly{grid-template-columns:minmax(0,490px);justify-content:center}
+.grid.setupOnly .card{width:100%}
