@@ -33,6 +33,12 @@ With the app running and provider credentials configured, set `ROUTER_TEST_WALLE
 
 A provider may require an account with sufficient balance to return an executable route. A passing quote check does not replace a funded transfer test.
 
+## HTTPS test preview on Vercel
+
+Import `gistomdain/crosschain-router` as a Next.js project in Vercel. The standard `npm run build` command is sufficient. Set provider credentials and RPC URLs in the project environment settings, using the names in `.env.example`; copy values from your local `.env.local` privately. Never commit `.env.local` or put provider secrets under `NEXT_PUBLIC_`. LI.FI and Relay can request quotes without their optional keys, while Across requires `ACROSS_API_KEY` and a four-digit hexadecimal `ACROSS_INTEGRATOR_ID` in this adapter.
+
+Deploy to get an HTTPS URL, then check Base → Arbitrum, 100 USDC in a mobile wallet browser. The preview can display read-only quotes before a wallet connects; connecting a wallet refreshes quotes for that address. Inspect the review screen without signing while validating the deployment. Run funded end-to-end tests and verify provider terms and monitoring before inviting real transfers.
+
 ## Production setup
 
 1. Configure reliable RPC endpoints for each enabled EVM chain and Solana. Source receipt tracking is limited when an EVM endpoint is missing.
