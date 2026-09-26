@@ -52,3 +52,13 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .grid:not(.setupOnly)>.card,.grid:not(.setupOnly)>aside{animation:routeReveal .32s ease both}@keyframes routeReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:760px){header{padding:24px 18px 16px}.grid{padding:0 14px;gap:15px}.card{padding:17px;border-radius:20px}.title b{font-size:20px}.asset{padding:13px}.token{min-width:124px}.asset input,.asset .amount{font-size:27px}}
 @media(prefers-reduced-motion:reduce){.grid:not(.setupOnly)>.card,.grid:not(.setupOnly)>aside{animation:none}.down,.primary,.token,.asset{transition:none}}
+
+/* Paired token and network marks keep identity clear without letter prefixes. */
+.assetLogos{position:relative;flex:0 0 34px;width:34px;height:34px;display:block}
+.assetTokenLogo{width:29px;height:29px;object-fit:contain;border-radius:50%}
+.assetNetworkLogo{position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;object-fit:contain;border:2px solid #232735;border-radius:50%;background:#232735}
+.selectorLogo{flex:0 0 23px;width:23px;height:23px;object-fit:contain;border-radius:50%}
+.chainGrid button,.tokenList button{display:flex;align-items:center;gap:8px}
+.chainGrid button .selectorLogo,.tokenList button .selectorLogo{margin-right:0}
+.path i{display:flex;align-items:center;justify-content:center;gap:6px}
+.pathLogo{flex:0 0 17px;width:17px;height:17px;object-fit:contain;border-radius:50%}
