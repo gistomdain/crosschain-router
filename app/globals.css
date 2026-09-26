@@ -62,3 +62,20 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .chainGrid button .selectorLogo,.tokenList button .selectorLogo{margin-right:0}
 .path i{display:flex;align-items:center;justify-content:center;gap:6px}
 .pathLogo{flex:0 0 17px;width:17px;height:17px;object-fit:contain;border-radius:50%}
+
+/* Asset picker uses the transfer card's surfaces, type and selected state. */
+.selectorBackdrop{background:#03050ac7;backdrop-filter:blur(10px);padding:14px}
+.selector{width:min(500px,100%);max-height:min(88vh,760px);background:#111319;border:1px solid #363b4a;border-radius:24px;padding:22px;box-shadow:0 30px 90px #000b}
+.selectorHead{margin-bottom:23px}.selectorHead b{font-size:21px;letter-spacing:-.035em;color:#f5f7ff}
+.selectorHead button{width:34px;height:34px;background:#232735;border:1px solid #3a4051;color:#d1d9ec;border-radius:11px;cursor:pointer}
+.selectorHead button:hover{background:#30384b}.selector>small{font-size:11px;font-weight:700;letter-spacing:.08em;color:#aeb8ca}
+.chainGrid{gap:8px;margin:11px 0 20px}.chainGrid button{min-height:48px;padding:9px 10px;background:#191d27;border:1px solid #303544;border-radius:12px;color:#e1e6f1;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
+.chainGrid button:hover{background:#242b3b;border-color:#6e82b8}.chainGrid button.active{background:#242e49;border-color:#9fb4f6;color:#fff;box-shadow:inset 0 0 0 1px #879fdb33}.chainGrid button.unsupported{opacity:.55}
+.chainGrid button span{line-height:1.2}.chainGrid button span small{color:#a5aec0}
+.tokenSearch{background:#1a1f2b;border:1px solid #373d4d;border-radius:12px;padding:12px;color:#aeb9d3}
+.tokenSearch:focus-within{border-color:#9fb4f6}.tokenSearch input{font-size:14px;color:#f5f7ff}.tokenSearch input::placeholder{color:#8c98ad}
+.tokenList{gap:6px;margin-top:12px}.tokenList button{min-height:57px;padding:9px 11px;background:#191d27;border:1px solid #292f3e;border-radius:12px;color:#f3f6ff;cursor:pointer;transition:background .2s,border-color .2s}
+.tokenList button:hover{background:#242b3b;border-color:#6e82b8}.tokenList b{font-size:14px}.tokenList small{font-size:11px;color:#a4aec1}
+.selector button:focus-visible,.tokenSearch input:focus-visible{outline:2px solid #b7c8ff;outline-offset:2px}
+@media(max-width:500px){.selector{padding:17px;border-radius:20px;max-height:90vh}.selectorHead{margin-bottom:18px}.selectorHead b{font-size:19px}.chainGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.chainGrid button{min-height:47px}}
+@media(prefers-reduced-motion:reduce){.chainGrid button,.tokenList button{transition:none}}
