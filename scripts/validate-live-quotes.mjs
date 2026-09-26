@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const base=process.env.ROUTER_BASE_URL||"http://localhost:3000";
+const base=process.env.ROUTER_BASE_URL||"http://127.0.0.1:3000";
 const address=process.env.ROUTER_TEST_WALLET;
 const ADDRESS=/^0x[a-fA-F0-9]{40}$/;
 const AMOUNT=/^\d+(?:\.\d+)?$/;
@@ -12,6 +12,7 @@ const selection={fromChain:source,toChain:destination,fromToken,toToken};
 const request=async(path,body)=>{
  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),18000);
  try{const response=await fetch(new URL(path,base),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body),signal:controller.signal});const json=await response.json();return{ok:response.ok,status:response.status,data:json}}
+ catch(error){const code=error?.cause?.code||error?.name||"network error";throw new Error(`Could not reach ${base}${path} (${code}). Keep npm run dev running and check ROUTER_BASE_URL.`)}
  finally{clearTimeout(timer)}
 };
 export async function verifyLiveQuotes(fetchRequest=request,config={address,selection,amount}){
