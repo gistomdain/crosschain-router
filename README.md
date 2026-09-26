@@ -25,6 +25,7 @@ npm run dev
 ```
 
 Open http://localhost:3000. Provider keys and RPC endpoints are configured server-side in `.env.local`. Keep credentials out of `NEXT_PUBLIC_` variables. A compatible browser wallet is required for execution.
+The deBridge public `create-tx` endpoint does not require a key for local testing; this app does not read `DEBRIDGE_API_KEY`. Commercial integrations can request a dedicated key and higher limits from deBridge, but that credential is not wired into this adapter yet.
 
 ## Read-only live quote check
 
