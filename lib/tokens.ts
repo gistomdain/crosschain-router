@@ -7,3 +7,4 @@ export const tokens:Token[]=[
 {symbol:"SOL",name:"Solana",decimals:9,chains:["solana"]},
 {symbol:"WBTC",name:"Wrapped Bitcoin",decimals:8,chains:[1,8453,42161,10,137]}];
 export const tokensFor=(chain:number|string)=>tokens.filter(t=>t.chains.includes(chain));
+export const displayTokenSymbol=(symbol:string)=>symbol.replace(/^\$+/,"");
