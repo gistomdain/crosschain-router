@@ -1,4 +1,5 @@
 import {resolveToken} from "@/lib/token-catalog";
+import {isSameChain} from "@/lib/providers/same-chain";import {describeSameChainQuote} from "@/lib/providers/same-chain-meta";
 import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {toBaseUnits} from "@/lib/token-addresses";import {validateProviderRelationship} from "@/lib/execution/provider-relationship";import {decimalUnits,deteriorationBps as calculateDeterioration,routeExpired} from "@/lib/execution/route-protection";
 export const dynamic="force-dynamic";
 const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;const ADDRESS=/^0x[a-fA-F0-9]{40}$/;
@@ -12,6 +13,7 @@ export async function POST(request:Request){
  if(typeof input.fromChain!=="number")return NextResponse.json({error:"EVM preparation requires a numeric source chain"},{status:400});
  try{
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),28000);let quote;try{quote=await provider.quote(input,controller.signal)}finally{clearTimeout(timer)}
+  if(quote&&isSameChain(input)&&provider.name==="LI.FI")quote=describeSameChainQuote(quote,input);
   if(!quote||!quote.tx)return NextResponse.json({error:"Fresh executable quote unavailable"},{status:409});
   const relationship=validateProviderRelationship(quote);if(!relationship.ok)return NextResponse.json({error:"Provider transaction relationship failed validation",details:relationship.errors},{status:422});
   const validation=validateProviderTransaction(quote.tx,input.fromChain);
