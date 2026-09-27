@@ -62,8 +62,8 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .chainGrid button .selectorLogo,.tokenList button .selectorLogo{margin-right:0}
 .path i{display:flex;align-items:center;justify-content:center;gap:6px}
 .pathLogo{flex:0 0 17px;width:17px;height:17px;object-fit:contain;border-radius:50%}
-.assetNetworkLogo[src$="/robinhood.svg"]{width:24px;height:24px;right:-5px;bottom:-5px;border-width:2px}
-.pathLogo[src$="/robinhood.svg"]{flex-basis:22px;width:22px;height:22px}
+.assetNetworkLogo[src$="/robinhood.svg"],.assetNetworkLogo[src$="/avalanche.svg"],.assetNetworkLogo[src$="/linea.svg"]{width:24px;height:24px;right:-5px;bottom:-5px;border-width:2px}
+.pathLogo[src$="/robinhood.svg"],.pathLogo[src$="/avalanche.svg"],.pathLogo[src$="/linea.svg"]{flex-basis:22px;width:22px;height:22px}
 
 /* Asset picker uses the transfer card's surfaces, type and selected state. */
 .selectorBackdrop{background:#03050ac7;backdrop-filter:blur(10px);padding:14px}
