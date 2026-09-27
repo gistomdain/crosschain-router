@@ -13,7 +13,7 @@ export async function getRelaySolanaQuote(input:SolanaBridgeInput,signal?:AbortS
  if(!source||!target||!isSolanaAddress(input.sourceAddress)||!EVM_ADDRESS.test(input.destinationAddress))return null;
  const amount=parseSolanaAmount(input.amount,source.decimals);if(!amount)return null;
  const headers:Record<string,string>={"content-type":"application/json",accept:"application/json"};
- if(process.env.RELAY_API_KEY)headers.Authorization="Bearer "+process.env.RELAY_API_KEY;
+ if(process.env.RELAY_API_KEY)headers["x-api-key"]=process.env.RELAY_API_KEY;
  const response=await fetch("https://api.relay.link/quote/v2",{method:"POST",headers,body:JSON.stringify({user:input.sourceAddress,recipient:input.destinationAddress,originChainId:RELAY_SOLANA_CHAIN_ID,destinationChainId:input.toChain,originCurrency:source.address,destinationCurrency:target.address,amount,tradeType:"EXACT_INPUT"}),cache:"no-store",signal});
  if(!response.ok)return null;
  const quote=await response.json();const out=quote.details?.currencyOut;

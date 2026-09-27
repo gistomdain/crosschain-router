@@ -10,10 +10,10 @@ export const relayProvider:QuoteProvider={name:"Relay",async quote(input:QuoteRe
  if(!from||!to||!input.userAddress||typeof input.fromChain!=="number")return null;
  const recipient=solanaDestination?input.destinationAddress:input.userAddress;
  if(solanaDestination?!isSolanaAddress(recipient):!/^0x[a-fA-F0-9]{40}$/.test(recipient??""))return null;
- const headers:Record<string,string>={"content-type":"application/json",accept:"application/json"};if(process.env.RELAY_API_KEY)headers.Authorization="Bearer "+process.env.RELAY_API_KEY;
+ const headers:Record<string,string>={"content-type":"application/json",accept:"application/json"};if(process.env.RELAY_API_KEY)headers["x-api-key"]=process.env.RELAY_API_KEY;
  const amount=toBaseUnits(input.amount,from.decimals),destinationChainId=solanaDestination?RELAY_SOLANA_CHAIN_ID:input.toChain;
  const body={user:input.userAddress,recipient,originChainId:input.fromChain,destinationChainId,originCurrency:from.address,destinationCurrency:to.address,amount,tradeType:"EXACT_INPUT"};
- const r=await fetch(API+"/quote/v2",{method:"POST",headers,body:JSON.stringify(body),cache:"no-store",signal});if(!r.ok)return null;
+ const r=await fetch(API+"/quote/v2",{method:"POST",headers,body:JSON.stringify(body),cache:"no-store",signal});if(r.status===429)throw new Error("Relay rate limited");if(r.status>=500)throw new Error("Relay quote unavailable");if(!r.ok)return null;
  const q=await r.json(),details=q.details??{},out=details.currencyOut;
  if(String(details.sender).toLowerCase()!==input.userAddress.toLowerCase()||details.recipient!==recipient||details.currencyIn?.currency?.chainId!==input.fromChain||String(details.currencyIn?.currency?.address).toLowerCase()!==from.address.toLowerCase()||String(details.currencyIn?.amount)!==amount||out?.currency?.chainId!==destinationChainId||String(out?.currency?.address).toLowerCase()!==to.address.toLowerCase())return null;
  if(!/^\d+$/.test(String(out.amount))||BigInt(out.amount)<=0n)return null;
