@@ -1,11 +1,12 @@
+import {resolveToken} from "../token-catalog";
 import type {NormalizedQuote,QuoteProvider,QuoteRequest,ProviderTransaction} from "./types";
-import {fromBaseUnits,getToken,toBaseUnits} from "../token-addresses";
+import {fromBaseUnits,toBaseUnits} from "../token-addresses";
 import {getSolanaMint,isSolanaAddress} from "../solana";
 import {RELAY_SOLANA_CHAIN_ID} from "./relay-solana";
 import {normalizeProviderTransaction} from "./normalize";
 const API="https://api.relay.link";
 export const relayProvider:QuoteProvider={name:"Relay",async quote(input:QuoteRequest,signal?:AbortSignal):Promise<NormalizedQuote|null>{
- const from=getToken(input.fromChain,input.fromToken),solanaDestination=input.toChain==="solana",to=solanaDestination?getSolanaMint(input.toToken):getToken(input.toChain,input.toToken);
+ const solanaDestination=input.toChain==="solana";const [from,to]=await Promise.all([resolveToken(input.fromChain,input.fromToken),solanaDestination?Promise.resolve(getSolanaMint(input.toToken)):resolveToken(input.toChain,input.toToken)]);
  if(!from||!to||!input.userAddress||typeof input.fromChain!=="number")return null;
  const recipient=solanaDestination?input.destinationAddress:input.userAddress;
  if(solanaDestination?!isSolanaAddress(recipient):!/^0x[a-fA-F0-9]{40}$/.test(recipient??""))return null;
