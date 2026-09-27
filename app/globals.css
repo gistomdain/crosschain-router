@@ -109,3 +109,12 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .gasAssist>div{min-width:0}.gasAssist em{justify-self:end}
 @media(max-width:760px){.gasAssist{grid-template-columns:1fr}.gasAssist em{justify-self:start}}
 @media(max-width:450px){.confidenceGrid>div:last-child:nth-child(odd){grid-column:auto}}
+
+/* Consistent chevron slots for both expandable route details. */
+.smart summary,.confidence summary{display:grid;grid-template-columns:minmax(0,1fr) auto 18px;align-items:center;column-gap:10px;min-height:26px}
+.smart summary>span,.confidence summary>span{min-width:0}
+.smart summary>b,.confidence summary>small{margin:0;justify-self:end;text-align:right}
+.smart summary::after,.confidence summary::after{content:"";display:block;width:8px;height:8px;box-sizing:border-box;border-right:2px solid #b7c8ff;border-bottom:2px solid #b7c8ff;justify-self:center;align-self:center;margin:0 0 4px;transform:rotate(45deg);transition:transform .2s,margin .2s}
+.smart[open] summary::after,.confidence[open] summary::after{transform:rotate(225deg);margin:4px 0 0}
+@media(max-width:450px){.confidence summary{grid-template-columns:minmax(0,1fr) 18px;row-gap:3px}.confidence summary>small{grid-column:1;grid-row:2;justify-self:start;text-align:left}.confidence summary::after{grid-column:2;grid-row:1 / span 2}}
+@media(prefers-reduced-motion:reduce){.smart summary::after,.confidence summary::after{transition:none}}
