@@ -1,4 +1,5 @@
-import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {getToken,toBaseUnits} from "@/lib/token-addresses";import {validateProviderRelationship} from "@/lib/execution/provider-relationship";import {decimalUnits,deteriorationBps as calculateDeterioration,routeExpired} from "@/lib/execution/route-protection";
+import {resolveToken} from "@/lib/token-catalog";
+import {NextResponse} from "next/server";import {getProvider} from "@/lib/providers";import {validateProviderTransaction} from "@/lib/execution/validate";import {isApprovalTransaction} from "@/lib/execution/simulate";import {decodeApproval} from "@/lib/execution/allowance";import {toBaseUnits} from "@/lib/token-addresses";import {validateProviderRelationship} from "@/lib/execution/provider-relationship";import {decimalUnits,deteriorationBps as calculateDeterioration,routeExpired} from "@/lib/execution/route-protection";
 export const dynamic="force-dynamic";
 const MAX_APPROVALS=2,MAX_APPROVAL_BUFFER_BPS=100n;const ADDRESS=/^0x[a-fA-F0-9]{40}$/;
 export async function POST(request:Request){
@@ -10,12 +11,12 @@ export async function POST(request:Request){
  const input={fromChain:body.fromChain,toChain:body.toChain,fromToken:String(body.fromToken),toToken:String(body.toToken),amount:String(body.amount),userAddress:String(body.userAddress),destinationAddress:typeof body.destinationAddress==="string"?body.destinationAddress:undefined};
  if(typeof input.fromChain!=="number")return NextResponse.json({error:"EVM preparation requires a numeric source chain"},{status:400});
  try{
-  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);let quote;try{quote=await provider.quote(input,controller.signal)}finally{clearTimeout(timer)}
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),28000);let quote;try{quote=await provider.quote(input,controller.signal)}finally{clearTimeout(timer)}
   if(!quote||!quote.tx)return NextResponse.json({error:"Fresh executable quote unavailable"},{status:409});
   const relationship=validateProviderRelationship(quote);if(!relationship.ok)return NextResponse.json({error:"Provider transaction relationship failed validation",details:relationship.errors},{status:422});
   const validation=validateProviderTransaction(quote.tx,input.fromChain);
   if(!validation.ok)return NextResponse.json({error:"Provider transaction failed validation",details:validation.errors},{status:422});
-  const approvals=quote.approvalTxs??[];const sourceToken=getToken(input.fromChain,input.fromToken);let expectedApproval:bigint|undefined;
+  const approvals=quote.approvalTxs??[];const sourceToken=await resolveToken(input.fromChain,input.fromToken);let expectedApproval:bigint|undefined;
   if(sourceToken){try{expectedApproval=BigInt(toBaseUnits(input.amount,sourceToken.decimals))}catch{return NextResponse.json({error:"Invalid source token amount"},{status:400})}}
   if(approvals.length&&!sourceToken)return NextResponse.json({error:"Cannot verify approval for this source token"},{status:422});
   if(approvals.length>MAX_APPROVALS)return NextResponse.json({error:"Route requires an unexpected number of approvals"},{status:422});
