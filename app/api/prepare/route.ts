@@ -7,7 +7,7 @@ export async function POST(request:Request){
  if(!/[1-9]/.test(amountText))return NextResponse.json({error:"Invalid preparation amount"},{status:400});
  if(!ADDRESS.test(String(body.userAddress)))return NextResponse.json({error:"Invalid EVM wallet address"},{status:400});
  const provider=getProvider(String(body.provider));if(!provider)return NextResponse.json({error:"Unknown provider"},{status:404});
- const input={fromChain:body.fromChain,toChain:body.toChain,fromToken:String(body.fromToken),toToken:String(body.toToken),amount:String(body.amount),userAddress:String(body.userAddress)};
+ const input={fromChain:body.fromChain,toChain:body.toChain,fromToken:String(body.fromToken),toToken:String(body.toToken),amount:String(body.amount),userAddress:String(body.userAddress),destinationAddress:typeof body.destinationAddress==="string"?body.destinationAddress:undefined};
  if(typeof input.fromChain!=="number")return NextResponse.json({error:"EVM preparation requires a numeric source chain"},{status:400});
  try{
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);let quote;try{quote=await provider.quote(input,controller.signal)}finally{clearTimeout(timer)}

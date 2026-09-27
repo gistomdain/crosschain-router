@@ -120,3 +120,5 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .smart[open] summary::after,.confidence[open] summary::after{transform:rotate(225deg);margin:4px 0 0}
 @media(max-width:450px){.confidence summary{grid-template-columns:minmax(0,1fr) 18px;row-gap:3px}.confidence summary>small{grid-column:1;grid-row:2;justify-self:start;text-align:left}.confidence summary::after{grid-column:2;grid-row:1 / span 2}}
 @media(prefers-reduced-motion:reduce){.smart summary::after,.confidence summary::after{transition:none}}
+
+.bridgeReviewRows{display:grid;gap:12px;margin:20px 0;overflow-wrap:anywhere}.bridgeReviewRows span{display:flex;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid #343b4b;color:#adb9ce;font-size:13px}.bridgeReviewRows b{color:#fff;text-align:right}.walletFamilyNotice button{border:1px solid #6075ad;background:#263654;color:#eef2ff;border-radius:9px;padding:8px 10px;cursor:pointer}.walletFamilyNotice button:disabled{opacity:.7;cursor:default}@media(max-width:500px){.bridgeReviewRows span{display:block}.bridgeReviewRows b{display:block;text-align:left;margin-top:3px}}

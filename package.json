@@ -12,14 +12,16 @@
     "verify:live": "node scripts/validate-live-quotes.mjs"
   },
   "dependencies": {
-    "next": "16.3.6",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "lucide-react": "^0.468.0",
     "@solana/kit": "8.3.0",
     "@solana/kit-plugin-rpc": "0.19.0",
     "@solana/kit-plugin-wallet": "0.20.0",
-    "@solana/react": "8.3.0"
+    "@solana/react": "8.3.0",
+    "@solana/web3.js": "^1.99.0",
+    "buffer": "^6.0.3",
+    "lucide-react": "^0.468.0",
+    "next": "16.3.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
