@@ -20,7 +20,7 @@ function WalletBridge({children}:{children:React.ReactNode}){
  const account=connection?.account;
  const signer=account?useWalletAccountTransactionSendingSigner(account as never,"solana:mainnet"):undefined;
  const walletOptions=wallets.map(w=>({name:w.name,icon:typeof w.icon==="string"?w.icon:undefined}));
- const connect=async(walletName?:string)=>{setError(undefined);if(!ready){setError("Solana wallet discovery is still starting");return}const wallet=walletName?wallets.find(w=>w.name===walletName):wallets[0];if(!wallet){setError("No Wallet Standard compatible Solana wallet detected");return}try{await connectAction.dispatch(wallet)}catch(e){setError(e instanceof Error?e.message:"Solana wallet connection failed")}};
+ const connect=async(walletName?:string)=>{setError(undefined);if(!ready){const message="Solana wallet discovery is still starting";setError(message);throw new Error(message)}const wallet=walletName?wallets.find(w=>w.name===walletName):wallets[0];if(!wallet){const message="No Wallet Standard compatible Solana wallet detected";setError(message);throw new Error(message)}try{await connectAction.dispatch(wallet)}catch(e){const message=e instanceof Error?e.message:"Solana wallet connection failed";setError(message);throw new Error(message)}};
  const disconnect=async()=>{setError(undefined);try{await disconnectAction.dispatch()}catch(e){setError(e instanceof Error?e.message:"Solana wallet disconnect failed")}};
  const address=connection?.account?.address;
  return <SolanaWalletContext.Provider value={{address,connected:!!address,connecting:false,error,wallets:walletOptions,selectedWallet:(connected as {wallet?:{name?:string}}|null)?.wallet?.name,connect,disconnect,signer}}>{children}</SolanaWalletContext.Provider>

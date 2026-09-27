@@ -122,3 +122,13 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 @media(prefers-reduced-motion:reduce){.smart summary::after,.confidence summary::after{transition:none}}
 
 .bridgeReviewRows{display:grid;gap:12px;margin:20px 0;overflow-wrap:anywhere}.bridgeReviewRows span{display:flex;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid #343b4b;color:#adb9ce;font-size:13px}.bridgeReviewRows b{color:#fff;text-align:right}.walletFamilyNotice button{border:1px solid #6075ad;background:#263654;color:#eef2ff;border-radius:9px;padding:8px 10px;cursor:pointer}.walletFamilyNotice button:disabled{opacity:.7;cursor:default}@media(max-width:500px){.bridgeReviewRows span{display:block}.bridgeReviewRows b{display:block;text-align:left;margin-top:3px}}
+
+/* Keep discovered browser wallets at the top of the connection flow. */
+.walletPicker{max-height:min(88vh,700px);overflow-y:auto}
+.walletPickerSection>b{display:block;margin:8px 0 10px;color:#aebbd4;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.walletOptions img{width:32px;height:32px;flex:0 0 32px;border-radius:9px;object-fit:contain;background:#20293b}
+.walletOptions button:disabled{opacity:.6;cursor:wait}
+.walletOptions button:hover:not(:disabled){background:#26334b;border-color:#7589bd}
+.walletOptions button:focus-visible,.walletRefresh:focus-visible{outline:2px solid #b7c8ff;outline-offset:2px}
+.walletRefresh{margin-top:14px;width:100%;border:1px solid #394966;border-radius:10px;padding:10px;background:#202b41;color:#d8e4ff;cursor:pointer}
+.moreWallets{margin-top:14px;border-top:1px solid #343b4b;padding-top:12px;color:#bec9df;font-size:13px}.moreWallets summary{cursor:pointer;font-weight:700}.moreWallets p{font-size:12px;color:#a9b5ca}.walletLinks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.walletLinks a{display:flex;flex-direction:column;gap:3px;text-decoration:none;border:1px solid #394966;border-radius:10px;padding:10px;color:#eaf0ff;background:#1b2537}.walletLinks small{color:#a9b5ca}.walletLinks a:hover{border-color:#7589bd}.walletLinks a:focus-visible{outline:2px solid #b7c8ff;outline-offset:2px}

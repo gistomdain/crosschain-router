@@ -9,7 +9,7 @@ export function SolanaWalletProvider({children}:{children:React.ReactNode}){
  const [error,setError]=useState<string>();
  useEffect(()=>setSecure(window.isSecureContext===true),[]);
  if(secure)return <Runtime>{children}</Runtime>;
- const fallback:SolanaWalletState={connected:false,connecting:false,error,wallets:[],connect:async()=>setError("Solana wallets require an HTTPS preview or localhost on this device."),disconnect:async()=>setError(undefined)};
+ const fallback:SolanaWalletState={connected:false,connecting:false,error,wallets:[],connect:async()=>{const message="Solana wallets require an HTTPS preview or localhost on this device.";setError(message);throw new Error(message)},disconnect:async()=>setError(undefined)};
  return <SolanaWalletContext.Provider value={fallback}>{children}</SolanaWalletContext.Provider>;
 }
 export function useSolanaWallet(){const value=useContext(SolanaWalletContext);if(!value)throw new Error("useSolanaWallet must be used inside SolanaWalletProvider");return value}
