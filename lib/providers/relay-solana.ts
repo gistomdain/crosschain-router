@@ -1,5 +1,6 @@
+import {resolveToken} from "../token-catalog";
 import {getSolanaMint,isSolanaAddress,parseSolanaAmount} from "@/lib/solana";
-import {getToken,fromBaseUnits} from "@/lib/token-addresses";
+import {fromBaseUnits} from "@/lib/token-addresses";
 
 export const RELAY_SOLANA_CHAIN_ID=792703809;
 const EVM_ADDRESS=/^0x[a-fA-F0-9]{40}$/;
@@ -8,7 +9,7 @@ export type RelaySolanaInstruction={programId:string;keys:{pubkey:string;isSigne
 export type RelaySolanaQuote={receive:string;minReceive:string;fee?:number;eta:string;requestId:string;expiresAt:string;instructions:RelaySolanaInstruction[];lookupTables:string[]};
 
 export async function getRelaySolanaQuote(input:SolanaBridgeInput,signal?:AbortSignal):Promise<RelaySolanaQuote|null>{
- const source=getSolanaMint(input.fromToken),target=getToken(input.toChain,input.toToken);
+ const source=getSolanaMint(input.fromToken),target=await resolveToken(input.toChain,input.toToken);
  if(!source||!target||!isSolanaAddress(input.sourceAddress)||!EVM_ADDRESS.test(input.destinationAddress))return null;
  const amount=parseSolanaAmount(input.amount,source.decimals);if(!amount)return null;
  const headers:Record<string,string>={"content-type":"application/json",accept:"application/json"};
