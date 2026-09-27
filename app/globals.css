@@ -150,3 +150,4 @@ body:has(.walletConnectPicker){overflow:hidden}
 .tokenCatalogNote{font-size:12px;color:#a8b5c4;margin:9px 2px;line-height:1.4}.tokenList button span{min-width:0}.tokenList button small{overflow-wrap:anywhere}
 .tokenIconFallback{display:inline-grid;place-items:center;flex:none;background:#324365;color:#eef2ff;font-size:12px;font-weight:800;border-radius:50%}
 body:has(.selectorBackdrop){overflow:hidden}.selector{scrollbar-width:none;-ms-overflow-style:none}.selector::-webkit-scrollbar{display:none}
+.tokenSectionLabel{margin:12px 2px 2px;color:#aebbd4;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
