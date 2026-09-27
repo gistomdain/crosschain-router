@@ -4,6 +4,7 @@ import {WalletMark} from "@/components/wallet-mark";
 import {WalletPortfolio} from "@/components/wallet-portfolio";
 import {SourceBalance} from "@/components/source-balance";
 import {displayTokenSymbol} from "@/lib/tokens";
+import {formatTokenAmount} from "@/lib/format-token-amount";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {ArrowDownUp,ChevronDown,Clock3,Route,ShieldCheck,Sparkles,Wallet} from "lucide-react";
 import {useRouteChangeAlert} from "@/hooks/use-route-change-alert";
@@ -73,6 +74,5 @@ export default function Home(){
 }
 function Asset({label,value,onChange,chain,token,tokenAddress,tokenLogoURI,input=false,onSelect}:{label:string;value:string;onChange?:(v:string)=>void;chain:string;token:string;tokenAddress?:string;tokenLogoURI?:string;input?:boolean;onSelect:()=>void}){return <div className="asset"><div className="meta"><span>{label}</span><span>{input?"Enter amount":"Estimated receive"}</span></div><div className="assetrow">{input?<input aria-label="Amount you pay" inputMode="decimal" value={value} onChange={e=>onChange?.(e.target.value.replace(/[^0-9.]/g,""))}/>:<div className="amount">{value}</div>}<button type="button" className="token" onClick={onSelect} title={tokenAddress?`Contract: ${tokenAddress}`:undefined} aria-label={`Choose ${label.toLowerCase()} asset and network${tokenAddress?` contract ${tokenAddress}`:""}`}><span className="assetLogos"><TokenIcon name={token} address={tokenAddress} logoURI={tokenLogoURI} className="assetTokenLogo"/><BrandLogo kind="network" name={chain} className="assetNetworkLogo"/></span><span><b>{displayTokenSymbol(token)}</b><small>{chain}</small></span><ChevronDown size={14}/></button></div></div>}
 function receiveDelta(best:number|string,value:number|string){try{const a=String(best),b=String(value);const scale=Math.max((a.split(".")[1]||"").length,(b.split(".")[1]||"").length);const unit=10n**BigInt(scale);const parse=(s:string)=>{const [w,f=""]=s.split(".");return BigInt(w)*(unit)+BigInt((f+"0".repeat(scale)).slice(0,scale)||"0")};const d=parse(a)-parse(b);if(d<=0n)return "0";const whole=d/unit,frac=(d%unit).toString().padStart(scale,"0").slice(0,4).replace(/0+$/,"");return frac?`${whole}.${frac}`:String(whole)}catch{return "—"}}
-function formatTokenAmount(value:number|string,digits=4){const s=String(value);const [whole,fraction=""]=s.split(".");const grouped=whole.replace(/\B(?=(\d{3})+(?!\d))/g,",");const trimmed=fraction.slice(0,digits).replace(/0+$/,"");return trimmed?`${grouped}.${trimmed}`:grouped}
 
 function routeShape(execution:"swap"|"bridge"|"swap-bridge"|"solver"|"multi-hop",hopCount?:number){const label=execution==="swap"?"DEX swap":execution==="bridge"?"Direct bridge":execution==="swap-bridge"?"Swap + bridge":execution==="solver"?"Solver execution":"Multi-hop";return hopCount&&hopCount>1?`${label} · ${hopCount} hops`:label}

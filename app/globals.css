@@ -159,3 +159,4 @@ body:has(.selectorBackdrop){overflow:hidden}.selector{scrollbar-width:none;-ms-o
 .balanceRefresh{vertical-align:middle;margin-left:6px;border:0;background:transparent;color:#a8c4f4;padding:2px;cursor:pointer}.balanceRefresh:disabled{opacity:.4;cursor:wait}.balanceRefresh:focus-visible{outline:2px solid #b7c8ff;border-radius:4px}
 
 .receiveEstimateNote{margin:9px 3px 14px;color:#a8b7cc;font-size:12px;line-height:1.45}
+.reviewFlow b{overflow-wrap:anywhere}
