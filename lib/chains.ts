@@ -6,5 +6,8 @@ export const chains:Chain[]=[
 {id:10,name:"Optimism",symbol:"O",native:"ETH",family:"evm"},
 {id:137,name:"Polygon",symbol:"P",native:"POL",family:"evm"},
 {id:56,name:"BNB Chain",symbol:"B",native:"BNB",family:"evm"},
+{id:43114,name:"Avalanche",symbol:"A",native:"AVAX",family:"evm"},
+{id:59144,name:"Linea",symbol:"L",native:"ETH",family:"evm"},
+{id:4663,name:"Robinhood Chain",symbol:"R",native:"ETH",family:"evm"},
 {id:"solana",name:"Solana",symbol:"S",native:"SOL",family:"solana"}];
 export const chainByName=(name:string)=>chains.find(c=>c.name===name)??chains[0];
