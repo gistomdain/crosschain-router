@@ -137,3 +137,12 @@ header{padding:38px 20px 18px}header .pill{background:#1a2030;border-color:#353d
 .walletOptions button:focus-visible,.walletRefresh:focus-visible{outline:2px solid #b7c8ff;outline-offset:2px}
 .walletRefresh{margin-top:14px;width:100%;border:1px solid #394966;border-radius:10px;padding:10px;background:#202b41;color:#d8e4ff;cursor:pointer}
 .moreWallets{margin-top:14px;border-top:1px solid #343b4b;padding-top:12px;color:#bec9df;font-size:13px}.moreWallets summary{cursor:pointer;font-weight:700}.moreWallets p{font-size:12px;color:#a9b5ca}.walletLinks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.walletLinks a{display:flex;flex-direction:column;gap:3px;text-decoration:none;border:1px solid #394966;border-radius:10px;padding:10px;color:#eaf0ff;background:#1b2537}.walletLinks small{color:#a9b5ca}.walletLinks a:hover{border-color:#7589bd}.walletLinks a:focus-visible{outline:2px solid #b7c8ff;outline-offset:2px}
+
+/* Center the wallet picker title and keep its content scrollable without a visible rail. */
+body:has(.walletConnectPicker){overflow:hidden}
+.walletConnectPicker{scrollbar-width:none;-ms-overflow-style:none}
+.walletConnectPicker::-webkit-scrollbar{display:none}
+.walletConnectPicker .walletPickerHead{position:relative;justify-content:center;min-height:38px;padding:0 38px;text-align:center}
+.walletConnectPicker .walletPickerHead span{align-items:center}
+.walletConnectPicker .walletPickerHead b{font-size:18px;font-weight:800}
+.walletConnectPicker .walletPickerHead button{position:absolute;right:0;top:50%;transform:translateY(-50%)}
