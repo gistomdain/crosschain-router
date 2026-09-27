@@ -1,11 +1,12 @@
+import {resolveToken} from "../token-catalog";
 import type {NormalizedQuote,QuoteProvider,QuoteRequest} from "./types";
-import {fromBaseUnits,getToken,toBaseUnits} from "../token-addresses";
+import {fromBaseUnits,toBaseUnits} from "../token-addresses";
 import {acrossExpiry,acrossOutputAmount,normalizeProviderTransaction} from "./normalize";
 
 export const acrossProvider:QuoteProvider={name:"Across",async quote(input:QuoteRequest,signal?:AbortSignal):Promise<NormalizedQuote|null>{
  const key=process.env.ACROSS_API_KEY,integratorId=process.env.ACROSS_INTEGRATOR_ID;
  if(!key||!integratorId||!/^0x[a-fA-F0-9]{4}$/.test(integratorId)||!input.userAddress||typeof input.fromChain!=="number"||typeof input.toChain!=="number")return null;
- const from=getToken(input.fromChain,input.fromToken),to=getToken(input.toChain,input.toToken);if(!from||!to)return null;
+ const [from,to]=await Promise.all([resolveToken(input.fromChain,input.fromToken),resolveToken(input.toChain,input.toToken)]);if(!from||!to)return null;
  const params=new URLSearchParams({tradeType:"exactInput",originChainId:String(input.fromChain),destinationChainId:String(input.toChain),inputToken:from.address,outputToken:to.address,amount:toBaseUnits(input.amount,from.decimals),depositor:input.userAddress,integratorId});
  const res=await fetch("https://app.across.to/api/swap/approval?"+params,{headers:{Authorization:"Bearer "+key,accept:"application/json"},cache:"no-store",signal});if(!res.ok)return null;const q=await res.json();
  const rawOut=acrossOutputAmount(q),expiresAt=acrossExpiry(q),tx=normalizeProviderTransaction(q?.swapTx,input.fromChain);
