@@ -1,4 +1,4 @@
-export type Token={symbol:string;name:string;decimals:number;address?:string;sources?:string[];chains:(number|string)[]};
+export type Token={symbol:string;name:string;decimals:number;address?:string;logoURI?:string;sources?:string[];chains:(number|string)[]};
 export const tokens:Token[]=[
 {symbol:"USDC",name:"USD Coin",decimals:6,chains:[1,8453,42161,10,137,56,43114,59144,"solana"]},
 {symbol:"USDG",name:"Global Dollar",decimals:6,chains:[4663]},
