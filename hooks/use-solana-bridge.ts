@@ -22,7 +22,9 @@ export function useSolanaBridge(){const wallet=useSolanaWallet();const [status,s
    const instructions=prepared.instructions.map(i=>new TransactionInstruction({programId:new PublicKey(i.programId),keys:i.keys.map(k=>({pubkey:new PublicKey(k.pubkey),isSigner:k.isSigner,isWritable:k.isWritable})),data:Buffer.from(i.data,"hex")}));
    const block=await connection.getLatestBlockhash("confirmed");
    const message=new TransactionMessage({payerKey:new PublicKey(wallet.address),recentBlockhash:block.blockhash,instructions}).compileToV0Message(tables);
-   const bytes=new Uint8Array(new VersionedTransaction(message).serialize());if(bytes.length>1232)throw new Error("Bridge transaction exceeds Solana size limit");
+   const unsigned=new VersionedTransaction(message);const bytes=new Uint8Array(unsigned.serialize());if(bytes.length>1232)throw new Error("Bridge transaction exceeds Solana size limit");
+   setStatus("Simulating Solana transaction");const simulation=await connection.simulateTransaction(unsigned,{sigVerify:false,replaceRecentBlockhash:true});
+   if(simulation.value.err)throw new Error("Solana transaction simulation failed. Check your token and SOL balances, then refresh the route.");
    const transaction=getTransactionDecoder().decode(bytes);
    const signer=wallet.signer as SendingSigner;if(typeof signer.signAndSendTransactions!=="function")throw new Error("Solana wallet cannot submit this bridge transaction");
    if(wallet.address!==sourceAddress||Date.parse(prepared.expiresAt)<=Date.now()+3000)throw new Error("Solana wallet or bridge quote changed. Refresh and review the route again.");
